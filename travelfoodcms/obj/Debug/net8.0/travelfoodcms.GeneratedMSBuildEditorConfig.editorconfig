@@ -18,12 +18,32 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = /Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms
 build_property._RazorSourceGeneratorDebug = 
 
+[/Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms/Views/Home/Destinations.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9EZXN0aW5hdGlvbnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms/Views/Home/Order.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9PcmRlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms/Views/Home/OrderItemDTO.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9PcmRlckl0ZW1EVE8uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms/Views/Home/Restaurants.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9SZXN0YXVyYW50cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms/Views/Home/Users.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Vc2Vycy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms/Views/Shared/Error.cshtml]
