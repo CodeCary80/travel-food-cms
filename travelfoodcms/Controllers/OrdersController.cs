@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TravelFoodCms.Data;
 using TravelFoodCms.Models;
+using TravelFoodCms.Models.DTOs;
 
 namespace TravelFoodCms.Controllers
 {
@@ -22,46 +23,222 @@ namespace TravelFoodCms.Controllers
 
         // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders()
         {
-            return await _context.Orders.ToListAsync();
+            var orders =  await _context.Orders
+                .Include(o => o.Restaurant)
+                .Include(o => o.User)
+                .ToListAsync();
+
+            var orderDTOs = orders.Select(o => new OrderDTO
+            {
+                OrderId = o.OrderId,
+                RestaurantId = o.RestaurantId,
+                UserId = o.UserId,
+                OrderDate = o.OrderDate,
+                Status = o.Status,
+                SpecialRequests = o.SpecialRequests,
+                OrderItems = null 
+            }).ToList();
+
+            return orderDTOs;
         }
 
         // GET: api/Orders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<OrderDTO>> GetOrder(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(o => o.Restaurant)
+                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
             {
                 return NotFound();
             }
 
-            return order;
+             var orderDTO = new OrderDTO
+            {
+                OrderId = order.OrderId,
+                RestaurantId = order.RestaurantId,
+                UserId = order.UserId,
+                OrderDate = order.OrderDate,
+                TotalAmount = order.TotalAmount,
+                Status = order.Status,
+                SpecialRequests = order.SpecialRequests,
+                OrderItems = order.OrderItems?.Select(oi => new OrderItemDTO
+                {
+                    ItemId = oi.ItemId,
+                    OrderId = oi.OrderId,
+                    ItemName = oi.ItemName,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice
+                }).ToList()
+            };
+
+            return orderDTO;
+        }
+
+        // GET: api/Orders/ByUser/5
+        [HttpGet("ByUser/{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersByUser(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            var orders = await _context.Orders
+                .Include(o => o.Restaurant)
+                .Where(o => o.UserId == userId)
+                .ToListAsync();
+
+            var orderDTOs = orders.Select(o => new OrderDTO
+            {
+                OrderId = o.OrderId,
+                RestaurantId = o.RestaurantId,
+                UserId = o.UserId,
+                OrderDate = o.OrderDate,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status,
+                SpecialRequests = o.SpecialRequests,
+                OrderItems = null 
+            }).ToList();
+
+            return orderDTOs;
+        }
+
+        // GET: api/Orders/ByRestaurant/5
+        [HttpGet("ByRestaurant/{restaurantId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersByRestaurant(int restaurantId)
+        {
+            var restaurant = await _context.Restaurants.FindAsync(restaurantId);
+            if (restaurant == null)
+            {
+                return NotFound("Restaurant not found");
+            }
+
+             var orders = await _context.Orders
+                .Include(o => o.Restaurant)
+                .Where(o => o.RestaurantId == restaurantId)
+                .ToListAsync();
+
+            var orderDTOs = orders.Select(o => new OrderDTO
+            {
+                OrderId = o.OrderId,
+                RestaurantId = o.RestaurantId,
+                UserId = o.UserId,
+                OrderDate = o.OrderDate,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status,
+                SpecialRequests = o.SpecialRequests,
+                OrderItems = null 
+            }).ToList();
+
+            return orderDTOs;
+        }
+
+        // GET: api/Orders/5/OrderItems
+        [HttpGet("{id}/OrderItems")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<OrderItemDTO>>> GetOrderItems(int id)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var orderItems = await _context.OrderItems
+                .Where(oi => oi.OrderId == id)
+                .ToListAsync();
+
+
+            var OrderItemDTOs = orderItems.Select(oi => new OrderItemDTO
+            {
+                ItemId = oi.ItemId,
+                OrderId = oi.OrderId,
+                ItemName = oi.ItemName,
+                Quantity = oi.Quantity,
+                UnitPrice = oi.UnitPrice
+            }).ToList();
+
+            return OrderItemDTOs;
         }
 
         // POST: api/Orders
         [HttpPost]
-        public async Task<ActionResult<Order>> CreateOrder(Order order)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<OrderDTO>> CreateOrder(OrderDTO orderDTO)
         {
-            order.OrderDate = DateTime.Now;
+            var restaurant = await _context.Restaurants.FindAsync(orderDTO.RestaurantId);
+            if (restaurant == null)
+            {
+                return BadRequest("Invalid Restaurant ID");
+            }
+
+            var user = await _context.Users.FindAsync(orderDTO.UserId);
+            if (user == null)
+            {
+                return BadRequest("Invalid User ID");
+            }
+
+              var order = new Order
+            {
+                RestaurantId = orderDTO.RestaurantId,
+                UserId = orderDTO.UserId,
+                OrderDate = DateTime.Now,
+                TotalAmount = orderDTO.TotalAmount,
+                Status = orderDTO.Status ?? "pending",
+                SpecialRequests = orderDTO.SpecialRequests
+            };
+
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
+            orderDTO.OrderId = order.OrderId;
+            orderDTO.OrderDate = order.OrderDate;
+
             return CreatedAtAction(
-                nameof(GetOrder), 
-                new { id = order.OrderId }, 
+                nameof(GetOrder),
+                new { id = order.OrderId },
                 order);
         }
 
         // PUT: api/Orders/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(int id, Order order)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateOrder(int id, OrderDTO orderDTO)
         {
-            if (id != order.OrderId)
+            if (id != orderDTO.OrderId)
             {
                 return BadRequest();
+            }
+
+            var restaurant = await _context.Restaurants.FindAsync(orderDTO.RestaurantId);
+            if (restaurant == null)
+            {
+                return BadRequest("Invalid Restaurant ID");
+            }
+
+            var user = await _context.Users.FindAsync(orderDTO.UserId);
+            if (user == null)
+            {
+                return BadRequest("Invalid User ID");
             }
 
             var originalOrder = await _context.Orders.FindAsync(id);
@@ -70,9 +247,13 @@ namespace TravelFoodCms.Controllers
                 return NotFound();
             }
 
-            order.OrderDate = originalOrder.OrderDate;
+            originalOrder.RestaurantId = orderDTO.RestaurantId;
+            originalOrder.UserId = orderDTO.UserId;
+            originalOrder.TotalAmount = orderDTO.TotalAmount;
+            originalOrder.Status = orderDTO.Status;
+            originalOrder.SpecialRequests = orderDTO.SpecialRequests;
+            
             _context.Entry(originalOrder).State = EntityState.Detached;
-            _context.Entry(order).State = EntityState.Modified;
 
             try
             {
@@ -92,12 +273,16 @@ namespace TravelFoodCms.Controllers
 
             return NoContent();
         }
-
         // DELETE: api/Orders/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
+
             if (order == null)
             {
                 return NotFound();
@@ -113,5 +298,10 @@ namespace TravelFoodCms.Controllers
         {
             return _context.Orders.Any(e => e.OrderId == id);
         }
+    }
+
+    public class UpdateOrderStatusDTO
+    {
+        public string Status { get; set; }
     }
 }

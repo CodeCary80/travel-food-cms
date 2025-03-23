@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TravelFoodCms.Data;
 using TravelFoodCms.Models;
+using TravelFoodCms.Models.DTOs;
 
 namespace TravelFoodCms.Controllers
 {
@@ -22,16 +23,36 @@ namespace TravelFoodCms.Controllers
 
         // GET: api/Restaurants
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Restaurant>>> GetRestaurants()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<RestaurantDTO>>> GetRestaurants()
         {
-            return await _context.Restaurants
+             var restaurants = await _context.Restaurants
                 .Include(r => r.Destination)
                 .ToListAsync();
+
+            var restaurantDTOs = restaurants.Select(r => new RestaurantDTO
+            {
+                RestaurantId = r.RestaurantId,
+                DestinationId = r.DestinationId,
+                Name = r.Name,
+                CuisineType = r.CuisineType,
+                PriceRange = r.PriceRange,
+                ContactInfo = r.ContactInfo,
+                OperatingHours = r.OperatingHours,
+                Address = r.Address,
+                ImageUrl = r.ImageUrl,
+                Date = r.Date,
+                Orders = null 
+            }).ToList();
+
+            return restaurantDTOs;
         }
 
         // GET: api/Restaurants/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Restaurant>> GetRestaurant(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<RestaurantDTO>> GetRestaurant(int id)
         {
             var restaurant = await _context.Restaurants
                 .Include(r => r.Destination)
@@ -42,12 +63,39 @@ namespace TravelFoodCms.Controllers
                 return NotFound();
             }
 
-            return restaurant;
+             var restaurantDTO = new RestaurantDTO
+            {
+                RestaurantId = restaurant.RestaurantId,
+                DestinationId = restaurant.DestinationId,
+                Name = restaurant.Name,
+                CuisineType = restaurant.CuisineType,
+                PriceRange = restaurant.PriceRange,
+                ContactInfo = restaurant.ContactInfo,
+                OperatingHours = restaurant.OperatingHours,
+                Address = restaurant.Address,
+                ImageUrl = restaurant.ImageUrl,
+                Date = restaurant.Date,
+                Orders = restaurant.Orders?.Select(o => new OrderDTO
+                {
+                    OrderId = o.OrderId,
+                    RestaurantId = o.RestaurantId,
+                    UserId = o.UserId,
+                    OrderDate = o.OrderDate,
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                    SpecialRequests = o.SpecialRequests,
+                    OrderItems = null 
+                }).ToList()
+            };
+
+            return restaurantDTO;
         }
 
         // GET: api/Restaurants/5/Orders
         [HttpGet("{id}/Orders")]
-        public async Task<ActionResult<IEnumerable<Order>>> GetRestaurantOrders(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetRestaurantOrders(int id)
         {
             var restaurant = await _context.Restaurants.FindAsync(id);
 
@@ -60,65 +108,99 @@ namespace TravelFoodCms.Controllers
                 .Where(o => o.RestaurantId == id)
                 .ToListAsync();
 
-            return orders;
+            var orderDTOs = orders.Select(o => new OrderDTO
+            {
+                OrderId = o.OrderId,
+                RestaurantId = o.RestaurantId,
+                UserId = o.UserId,
+                OrderDate = o.OrderDate,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status,
+                SpecialRequests = o.SpecialRequests,
+                OrderItems = null 
+            }).ToList();
+
+            return orderDTOs;
         }
 
         // POST: api/Restaurants
         [HttpPost]
-        public async Task<ActionResult<Restaurant>> CreateRestaurant(Restaurant restaurant)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<RestaurantDTO>> CreateRestaurant(RestaurantDTO restaurantDTO)
         {
             // Verify the destination exists
-            var destination = await _context.Destinations.FindAsync(restaurant.DestinationId);
+            var destination = await _context.Destinations.FindAsync(restaurantDTO.DestinationId);
             if (destination == null)
             {
                 return BadRequest("Invalid Destination ID");
             }
 
-            restaurant.Date = DateTime.Now;
+             var restaurant = new Restaurant
+            {
+                DestinationId = restaurantDTO.DestinationId,
+                Name = restaurantDTO.Name,
+                CuisineType = restaurantDTO.CuisineType,
+                PriceRange = restaurantDTO.PriceRange,
+                ContactInfo = restaurantDTO.ContactInfo,
+                OperatingHours = restaurantDTO.OperatingHours,
+                Address = restaurantDTO.Address,
+                ImageUrl = restaurantDTO.ImageUrl,
+                Date = DateTime.Now
+            };
+
             _context.Restaurants.Add(restaurant);
             await _context.SaveChangesAsync();
 
-            // Load the destination data for the response
-            await _context.Entry(restaurant)
-                .Reference(r => r.Destination)
-                .LoadAsync();
+            // Update the DTO with the newly created ID and date
+            restaurantDTO.RestaurantId = restaurant.RestaurantId;
+            restaurantDTO.Date = restaurant.Date;
 
             return CreatedAtAction(
                 nameof(GetRestaurant),
                 new { id = restaurant.RestaurantId },
-                restaurant);
+                restaurantDTO);
         }
 
         // PUT: api/Restaurants/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRestaurant(int id, Restaurant restaurant)
+         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateRestaurant(int id, RestaurantDTO restaurantDTO)
         {
-            if (id != restaurant.RestaurantId)
+            if (id != restaurantDTO.RestaurantId)
             {
                 return BadRequest();
             }
 
             // Verify the destination exists
-            var destination = await _context.Destinations.FindAsync(restaurant.DestinationId);
+            var destination = await _context.Destinations.FindAsync(restaurantDTO.DestinationId);
             if (destination == null)
             {
                 return BadRequest("Invalid Destination ID");
             }
 
-            // Preserve the original creation date
             var originalRestaurant = await _context.Restaurants.FindAsync(id);
             if (originalRestaurant == null)
             {
                 return NotFound();
             }
 
-            // Update restaurant and maintain original Date
-            restaurant.Date = originalRestaurant.Date;
-            _context.Entry(originalRestaurant).State = EntityState.Detached;
+            // Update restaurant properties
+            originalRestaurant.DestinationId = restaurantDTO.DestinationId;
+            originalRestaurant.Name = restaurantDTO.Name;
+            originalRestaurant.CuisineType = restaurantDTO.CuisineType;
+            originalRestaurant.PriceRange = restaurantDTO.PriceRange;
+            originalRestaurant.ContactInfo = restaurantDTO.ContactInfo;
+            originalRestaurant.OperatingHours = restaurantDTO.OperatingHours;
+            originalRestaurant.Address = restaurantDTO.Address;
+            originalRestaurant.ImageUrl = restaurantDTO.ImageUrl;
 
-            _context.Entry(restaurant).State = EntityState.Modified;
+            _context.Entry(originalRestaurant).State = EntityState.Modified;
 
-            try
+
+             try
             {
                 await _context.SaveChangesAsync();
             }
@@ -139,6 +221,8 @@ namespace TravelFoodCms.Controllers
 
         // DELETE: api/Restaurants/5
         [HttpDelete("{id}")]
+         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteRestaurant(int id)
         {
             var restaurant = await _context.Restaurants
@@ -150,8 +234,6 @@ namespace TravelFoodCms.Controllers
                 return NotFound();
             }
 
-            // This will cascade delete all orders associated with this restaurant
-            // due to our DbContext configuration
             _context.Restaurants.Remove(restaurant);
             await _context.SaveChangesAsync();
 
@@ -160,7 +242,9 @@ namespace TravelFoodCms.Controllers
 
         // GET: api/Restaurants/ByDestination/5
         [HttpGet("ByDestination/{destinationId}")]
-        public async Task<ActionResult<IEnumerable<Restaurant>>> GetRestaurantsByDestination(int destinationId)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<RestaurantDTO>>> GetRestaurantsByDestination(int destinationId)
         {
             var destination = await _context.Destinations.FindAsync(destinationId);
             if (destination == null)
@@ -168,9 +252,26 @@ namespace TravelFoodCms.Controllers
                 return NotFound("Destination not found");
             }
 
-            return await _context.Restaurants
+            var restaurants = await _context.Restaurants
                 .Where(r => r.DestinationId == destinationId)
                 .ToListAsync();
+
+             var restaurantDTOs = restaurants.Select(r => new RestaurantDTO
+            {
+                RestaurantId = r.RestaurantId,
+                DestinationId = r.DestinationId,
+                Name = r.Name,
+                CuisineType = r.CuisineType,
+                PriceRange = r.PriceRange,
+                ContactInfo = r.ContactInfo,
+                OperatingHours = r.OperatingHours,
+                Address = r.Address,
+                ImageUrl = r.ImageUrl,
+                Date = r.Date,
+                Orders = null 
+            }).ToList();
+
+            return restaurantDTOs;
         }
 
         private bool RestaurantExists(int id)

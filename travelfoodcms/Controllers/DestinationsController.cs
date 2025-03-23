@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TravelFoodCms.Data;
 using TravelFoodCms.Models;
+using TravelFoodCms.Models.DTOs;
+
 
 namespace TravelFoodCms.Controllers
 {
@@ -22,14 +24,30 @@ namespace TravelFoodCms.Controllers
 
         // GET: api/Destinations
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Destination>>> GetDestinations()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<DestinationDTO>>> GetDestinations()
         {
-            return await _context.Destinations.ToListAsync();
+             var destinations = await _context.Destinations.ToListAsync();
+
+             var destinationDTOs = destinations.Select(d => new DestinationDTO
+            {
+                DestinationId = d.DestinationId,
+                Name = d.Name,
+                Location = d.Location,
+                Description = d.Description,
+                ImageUrl = d.ImageUrl,
+                Date = d.Date,
+                Restaurants = null 
+            }).ToList();
+
+            return destinationDTOs;
         }
 
         // GET: api/Destinations/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Destination>> GetDestination(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<DestinationDTO>> GetDestination(int id)
         {
             var destination = await _context.Destinations.FindAsync(id);
 
@@ -38,12 +56,38 @@ namespace TravelFoodCms.Controllers
                 return NotFound();
             }
 
-            return destination;
+            var destinationDTO = new DestinationDTO
+            {
+                DestinationId = destination.DestinationId,
+                Name = destination.Name,
+                Location = destination.Location,
+                Description = destination.Description,
+                ImageUrl = destination.ImageUrl,
+                Date = destination.Date,
+                Restaurants = destination.Restaurants?.Select(r => new RestaurantDTO
+                {
+                    RestaurantId = r.RestaurantId,
+                    DestinationId = r.DestinationId,
+                    Name = r.Name,
+                    CuisineType = r.CuisineType,
+                    PriceRange = r.PriceRange,
+                    ContactInfo = r.ContactInfo,
+                    OperatingHours = r.OperatingHours,
+                    Address = r.Address,
+                    ImageUrl = r.ImageUrl,
+                    Date = r.Date,
+                    Orders = null 
+                }).ToList()
+            };
+
+            return destinationDTO;
         }
 
         // GET: api/Destinations/5/Restaurants
         [HttpGet("{id}/Restaurants")]
-        public async Task<ActionResult<IEnumerable<Restaurant>>> GetDestinationRestaurants(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<RestaurantDTO>>> GetDestinationRestaurants(int id)
         {
             var destination = await _context.Destinations.FindAsync(id);
 
@@ -56,44 +100,75 @@ namespace TravelFoodCms.Controllers
                 .Where(r => r.DestinationId == id)
                 .ToListAsync();
 
-            return restaurants;
+             var restaurantDTOs = restaurants.Select(r => new RestaurantDTO
+            {
+                RestaurantId = r.RestaurantId,
+                DestinationId = r.DestinationId,
+                Name = r.Name,
+                CuisineType = r.CuisineType,
+                PriceRange = r.PriceRange,
+                ContactInfo = r.ContactInfo,
+                OperatingHours = r.OperatingHours,
+                Address = r.Address,
+                ImageUrl = r.ImageUrl,
+                Date = r.Date,
+                Orders = null // Not loading orders here
+            }).ToList();
+
+            return restaurantDTOs;
         }
 
         // POST: api/Destinations
         [HttpPost]
-        public async Task<ActionResult<Destination>> CreateDestination(Destination destination)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<DestinationDTO>> CreateDestination(DestinationDTO destinationDTO)
         {
-            destination.Date = DateTime.Now;
+             var destination = new Destination
+            {
+                Name = destinationDTO.Name,
+                Location = destinationDTO.Location,
+                Description = destinationDTO.Description,
+                ImageUrl = destinationDTO.ImageUrl,
+                Date = DateTime.Now
+            };
+
             _context.Destinations.Add(destination);
             await _context.SaveChangesAsync();
 
+            destinationDTO.DestinationId = destination.DestinationId;
+            destinationDTO.Date = destination.Date;
+
             return CreatedAtAction(
-                nameof(GetDestination), 
-                new { id = destination.DestinationId }, 
-                destination);
+                nameof(GetDestination),
+                new { id = destination.DestinationId },
+                destinationDTO);
         }
 
         // PUT: api/Destinations/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDestination(int id, Destination destination)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateDestination(int id, Destination destinationDTO)
         {
-            if (id != destination.DestinationId)
+            if (id != destinationDTO.DestinationId)
             {
                 return BadRequest();
             }
 
-            // Preserve the original creation date
             var originalDestination = await _context.Destinations.FindAsync(id);
             if (originalDestination == null)
             {
                 return NotFound();
             }
 
-            // Update destination and maintain original Date
-            destination.Date = originalDestination.Date;
-            _context.Entry(originalDestination).State = EntityState.Detached;
+            originalDestination.Name = destinationDTO.Name;
+            originalDestination.Location = destinationDTO.Location;
+            originalDestination.Description = destinationDTO.Description;
+            originalDestination.ImageUrl = destinationDTO.ImageUrl;
             
-            _context.Entry(destination).State = EntityState.Modified;
+            _context.Entry(originalDestination).State = EntityState.Modified;
 
             try
             {
@@ -116,6 +191,8 @@ namespace TravelFoodCms.Controllers
 
         // DELETE: api/Destinations/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteDestination(int id)
         {
             var destination = await _context.Destinations
@@ -127,8 +204,6 @@ namespace TravelFoodCms.Controllers
                 return NotFound();
             }
 
-            // This will cascade delete all restaurants associated with this destination
-            // due to our DbContext configuration
             _context.Destinations.Remove(destination);
             await _context.SaveChangesAsync();
 
