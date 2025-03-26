@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TravelFoodCms.Data;
@@ -26,7 +27,7 @@ namespace TravelFoodCms.Controllers
         {
             return await _context.OrderItems
                 .Include(oi => oi.Order)
-                .Include(oi => oi.FoodItem)
+                .Include(oi => oi.OrderItemId)
                 .ToListAsync();
         }
 
@@ -36,7 +37,7 @@ namespace TravelFoodCms.Controllers
         {
             var orderItem = await _context.OrderItems
                 .Include(oi => oi.Order)
-                .Include(oi => oi.FoodItem)
+                .Include(oi => oi.OrderItemId)
                 .FirstOrDefaultAsync(oi => oi.OrderItemId == id);
 
             if (orderItem == null)
@@ -59,7 +60,7 @@ namespace TravelFoodCms.Controllers
 
             return await _context.OrderItems
                 .Where(oi => oi.OrderId == orderId)
-                .Include(oi => oi.FoodItem)
+                .Include(oi => oi.OrderItemId)
                 .ToListAsync();
         }
 
@@ -73,8 +74,8 @@ namespace TravelFoodCms.Controllers
                 return BadRequest("Invalid Order ID");
             }
 
-            var foodItem = await _context.FoodItems.FindAsync(orderItem.FoodItemId);
-            if (foodItem == null)
+            var OrderItemId = await _context.OrderItemId.FindAsync(orderItem.);
+            if (OrderItemId == null)
             {
                 return BadRequest("Invalid Food Item ID");
             }
