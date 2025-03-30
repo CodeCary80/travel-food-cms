@@ -12,7 +12,7 @@ namespace TravelFoodCms.Models.DTOs
         public decimal TotalAmount { get; set; }
         public string Status { get; set; }
         public string SpecialRequests { get; set; }
-        public List<OrderItemDTO> OrderItems { get; set; }
+        public List<OrderItemDTO> OrderItems { get; set; } = new List<OrderItemDTO>();
     }
 
 }  

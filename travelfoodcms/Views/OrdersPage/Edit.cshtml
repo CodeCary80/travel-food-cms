@@ -1,0 +1,156 @@
+@using TravelFoodCms.Models.ViewModels;
+
+@model OrderViewModel
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2>Edit Order #@Model.OrderId</h2>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="OrderId" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group">
+                            <label asp-for="RestaurantId" class="control-label">Restaurant</label>
+                            <select asp-for="RestaurantId" class="form-control" asp-items="ViewBag.Restaurants">
+                                <option value="">-- Select Restaurant --</option>
+                            </select>
+                            <span asp-validation-for="RestaurantId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="UserId" class="control-label">User</label>
+                            <select asp-for="UserId" class="form-control" asp-items="ViewBag.Users">
+                                <option value="">-- Select User --</option>
+                            </select>
+                            <span asp-validation-for="UserId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Status" class="control-label">Order Status</label>
+                            <select asp-for="Status" class="form-control">
+                                <option value="Pending">Pending</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="SpecialRequests" class="control-label">Special Requests</label>
+                            <textarea asp-for="SpecialRequests" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="SpecialRequests" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="TotalAmount" class="control-label">Total Amount</label>
+                            <input asp-for="TotalAmount" class="form-control" />
+                            <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                        </div>
+
+                        <h4>Order Items</h4>
+                        <div id="orderItemsContainer">
+                            @if (Model.OrderItems != null)
+                            {
+                                for (int i = 0; i < Model.OrderItems.Count; i++)
+                                {
+                                    <div class="order-item-row">
+                                        <div class="row">
+                                            <input type="hidden" name="OrderItems[@i].ItemId" value="@Model.OrderItems[i].ItemId" />
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Item Name</label>
+                                                    <input type="text" name="OrderItems[@i].ItemName" class="form-control" value="@Model.OrderItems[i].ItemName" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label>Quantity</label>
+                                                    <input type="number" name="OrderItems[@i].Quantity" class="form-control" value="@Model.OrderItems[i].Quantity" min="1" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label>Unit Price</label>
+                                                    <input type="number" name="OrderItems[@i].UnitPrice" class="form-control" value="@Model.OrderItems[i].UnitPrice" step="0.01" min="0" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>&nbsp;</label>
+                                                    <button type="button" class="btn btn-danger remove-item form-control">
+                                                        <i class="fas fa-trash"></i> Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <button type="button" id="addOrderItem" class="btn btn-success">
+                                <i class="fas fa-plus"></i> Add Item
+                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="submit" value="Save Changes" class="btn btn-primary" />
+                            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function() {
+        let itemIndex = @(Model.OrderItems?.Count ?? 0);
+        
+        $('#addOrderItem').click(function() {
+            const newRow = `
+                <div class="order-item-row">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <input type="text" name="OrderItems[${itemIndex}].ItemName" class="form-control" placeholder="Item Name" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <input type="number" name="OrderItems[${itemIndex}].Quantity" class="form-control" min="1" placeholder="Qty" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <input type="number" name="OrderItems[${itemIndex}].UnitPrice" class="form-control" step="0.01" min="0" placeholder="Price" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <button type="button" class="btn btn-danger remove-item form-control">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            
+            $('#orderItemsContainer').append(newRow);
+            itemIndex++;
+        });
+
+        $(document).on('click', '.remove-item', function() {
+            $(this).closest('.order-item-row').remove();
+        });
+    });
+</script>
+}

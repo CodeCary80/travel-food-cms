@@ -11,7 +11,9 @@ namespace TravelFoodCms.Models.DTOs
         public string Description { get; set; }
         public string ImageUrl { get; set; }
         public DateTime Date { get; set; }
-        public List<RestaurantDTO> Restaurants { get; set; }
+        public int? CreatorUserId { get; set; }
+       
+        public List<RestaurantDTO> Restaurants { get; set; } = new List<RestaurantDTO>();
     }
 
 }  

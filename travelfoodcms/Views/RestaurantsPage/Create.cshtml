@@ -1,0 +1,82 @@
+@using TravelFoodCms.Models.ViewModels;
+
+@model RestaurantViewModel
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2>Create New Restaurant</h2>
+                </div>
+
+                <form asp-action="Create" method="post">
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group">
+                            <label asp-for="DestinationId" class="control-label">Destination</label>
+                            <select asp-for="DestinationId" class="form-control" asp-items="ViewBag.Destinations">
+                                <option value="">-- Select Destination --</option>
+                            </select>
+                            <span asp-validation-for="DestinationId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label">Restaurant Name</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="CuisineType" class="control-label">Cuisine Type</label>
+                            <input asp-for="CuisineType" class="form-control" />
+                            <span asp-validation-for="CuisineType" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="PriceRange" class="control-label">Price Range</label>
+                            <select asp-for="PriceRange" class="form-control">
+                                <option value="">-- Select Price Range --</option>
+                                <option value="$">$ - Budget</option>
+                                <option value="$$">$$ - Moderate</option>
+                                <option value="$$$">$$$ - Expensive</option>
+                                <option value="$$$$">$$$$ - Fine Dining</option>
+                            </select>
+                            <span asp-validation-for="PriceRange" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ContactInfo" class="control-label">Contact Info</label>
+                            <input asp-for="ContactInfo" class="form-control" />
+                            <span asp-validation-for="ContactInfo" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="OperatingHours" class="control-label">Operating Hours</label>
+                            <input asp-for="OperatingHours" class="form-control" />
+                            <span asp-validation-for="OperatingHours" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Address" class="control-label">Address</label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ImageUrl" class="control-label">Image URL</label>
+                            <input asp-for="ImageUrl" class="form-control" />
+                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="submit" value="Create" class="btn btn-primary" />
+                            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

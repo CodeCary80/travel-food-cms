@@ -1,0 +1,59 @@
+@using TravelFoodCms.Models.ViewModels;
+
+@model OrderItemViewModel
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <!-- Card Header -->
+                <div class="card-header bg-primary text-white">
+                    <h2>Create New Order Item</h2>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <!-- Order Selection -->
+                        <div class="form-group">
+                            <label asp-for="OrderId" class="control-label">Order</label>
+                            <select asp-for="OrderId" class="form-control" asp-items="ViewBag.Orders">
+                                <option value="">-- Select Order --</option>
+                            </select>
+                            <span asp-validation-for="OrderId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Item Name -->
+                        <div class="form-group">
+                            <label asp-for="ItemName" class="control-label">Item Name</label>
+                            <input asp-for="ItemName" class="form-control" />
+                            <span asp-validation-for="ItemName" class="text-danger"></span>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="form-group">
+                            <label asp-for="Quantity" class="control-label">Quantity</label>
+                            <input asp-for="Quantity" class="form-control" type="number" min="1" />
+                            <span asp-validation-for="Quantity" class="text-danger"></span>
+                        </div>
+
+                        <!-- Unit Price -->
+                        <div class="form-group">
+                            <label asp-for="UnitPrice" class="control-label">Unit Price</label>
+                            <input asp-for="UnitPrice" class="form-control" type="number" step="0.01" min="0" />
+                            <span asp-validation-for="UnitPrice" class="text-danger"></span>
+                        </div>
+
+                        <!-- Submit & Cancel Buttons -->
+                        <div class="form-group">
+                            <input type="submit" value="Create" class="btn btn-primary" />
+                            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                        </div>
+                    </form>
+                </div> <!-- End Card Body -->
+            </div>
+        </div>
+    </div>
+</div>

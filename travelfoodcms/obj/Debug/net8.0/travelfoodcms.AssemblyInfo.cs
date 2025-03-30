@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("travelfoodcms")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+22c46bf66509e2b809eaa38ca975e1b92e0ce76a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9d27666fe84a03f4d00bcff33da28a1eeff4321")]
 [assembly: System.Reflection.AssemblyProductAttribute("travelfoodcms")]
 [assembly: System.Reflection.AssemblyTitleAttribute("travelfoodcms")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

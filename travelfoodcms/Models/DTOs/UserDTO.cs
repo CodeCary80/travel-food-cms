@@ -8,8 +8,10 @@ namespace TravelFoodCms.Models.DTOs
         public int UserId { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
-        public bool IsAdmin { get; set; }
-        public List<OrderDTO> Orders { get; set; }
+        public string PasswordHash { get; set; }
+        public bool IsAdmin { get; set; } = false;
+        public List<OrderDTO> Orders { get; set; } = new List<OrderDTO>();
+        
     }
 
     public class LoginModel

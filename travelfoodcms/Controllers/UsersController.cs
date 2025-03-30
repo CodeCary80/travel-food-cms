@@ -8,6 +8,7 @@ using TravelFoodCms.Data;
 using TravelFoodCms.Models;
 using System.Security.Cryptography;
 using System.Text;
+using TravelFoodCms.Models.DTOs;
 
 namespace TravelFoodCms.Controllers
 {
@@ -77,39 +78,44 @@ namespace TravelFoodCms.Controllers
 
         // POST: api/Users
         [HttpPost]
-        public async Task<ActionResult<User>> CreateUser(User user)
+        public async Task<ActionResult<UserDTO>> CreateUser(UserDTO userDTO)
         {
             // Check if username or email already exists
-            if (await _context.Users.AnyAsync(u => u.Username == user.Username))
+            if (await _context.Users.AnyAsync(u => u.Username == userDTO.Username))
             {
                 return BadRequest("Username already exists");
             }
 
-            if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+            if (await _context.Users.AnyAsync(u => u.Email == userDTO.Email))
             {
                 return BadRequest("Email already exists");
             }
 
-            // Hash the password - In a real application, use a proper password hashing library
-            user.PasswordHash = HashPassword(user.PasswordHash);
+            var user = new User
+                {
+                    Username = userDTO.Username,
+                    Email = userDTO.Email,
+                    PasswordHash = HashPassword(userDTO.PasswordHash),
+                    IsAdmin = userDTO.IsAdmin
+                };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // Don't return the password hash
-            user.PasswordHash = null;
+             userDTO.PasswordHash = null;
+            userDTO.UserId = user.UserId;
 
             return CreatedAtAction(
                 nameof(GetUser),
                 new { id = user.UserId },
-                user);
+                userDTO);
         }
 
         // PUT: api/Users/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, User user)
+        public async Task<IActionResult> UpdateUser(int id, UserDTO userDTO)
         {
-            if (id != user.UserId)
+            if (id != userDTO.UserId)
             {
                 return BadRequest();
             }
@@ -121,28 +127,26 @@ namespace TravelFoodCms.Controllers
             }
 
             // Check if username is changing and if it's already taken
-            if (existingUser.Username != user.Username && 
-                await _context.Users.AnyAsync(u => u.Username == user.Username))
+            if (existingUser.Username != userDTO.Username && 
+                await _context.Users.AnyAsync(u => u.Username == userDTO.Username))
             {
                 return BadRequest("Username already exists");
             }
 
             // Check if email is changing and if it's already taken
-            if (existingUser.Email != user.Email && 
-                await _context.Users.AnyAsync(u => u.Email == user.Email))
+            if (existingUser.Email != userDTO.Email && 
+                await _context.Users.AnyAsync(u => u.Email == userDTO.Email))
             {
                 return BadRequest("Email already exists");
             }
 
-            // Update user properties
-            existingUser.Username = user.Username;
-            existingUser.Email = user.Email;
-            existingUser.IsAdmin = user.IsAdmin;
+            existingUser.Username = userDTO.Username;
+            existingUser.Email = userDTO.Email;
+            existingUser.IsAdmin = userDTO.IsAdmin;
 
-            // Only update password if a new one is provided
-            if (!string.IsNullOrEmpty(user.PasswordHash))
+            if (!string.IsNullOrEmpty(userDTO.PasswordHash))
             {
-                existingUser.PasswordHash = HashPassword(user.PasswordHash);
+                existingUser.PasswordHash = HashPassword(userDTO.PasswordHash);
             }
 
             try
