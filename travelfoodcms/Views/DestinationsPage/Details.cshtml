@@ -1,0 +1,76 @@
+@using TravelFoodCms.Models.ViewModels;
+
+@model DestinationViewModel
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2>@Model.Name</h2>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model.DestinationId" class="btn btn-sm btn-light mr-2">
+                            <i class="fas fa-edit mr-1"></i>Edit
+                        </a>
+                        <a asp-action="Index" class="btn btn-sm btn-light">
+                            <i class="fas fa-arrow-left mr-1"></i>Back to List
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <img src="@Model.ImageUrl" class="img-fluid rounded" 
+                             alt="@Model.Name"
+                             onerror="this.src='https://via.placeholder.com/500x300?text=Destination'">
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Destination Details</h4>
+                        <hr>
+                        <dl class="row">
+                            <dt class="col-sm-4">Location</dt>
+                            <dd class="col-sm-8">@Model.Location</dd>
+
+                            <dt class="col-sm-4">Description</dt>
+                            <dd class="col-sm-8">@Model.Description</dd>
+
+                            <dt class="col-sm-4">Added On</dt>
+                            <dd class="col-sm-8">@Model.Date.ToString("dd MMMM yyyy")</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <h4>Restaurants in this Destination</h4>
+                @if (Model.Restaurants == null || !Model.Restaurants.Any())
+                {
+                    <p class="text-muted">No restaurants found for this destination.</p>
+                }
+                else
+                {
+                    <div class="row">
+                        @foreach (var restaurant in Model.Restaurants)
+                        {
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@restaurant.Name</h5>
+                                        <p class="card-text">
+                                            <strong>Cuisine:</strong> @restaurant.CuisineType<br>
+                                            <strong>Address:</strong> @restaurant.Address
+                                        </p>
+                                        <a asp-controller="RestaurantsPage" asp-action="Details" asp-route-id="@restaurant.RestaurantId" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

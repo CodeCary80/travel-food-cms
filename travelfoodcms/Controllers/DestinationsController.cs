@@ -77,7 +77,7 @@ namespace TravelFoodCms.Controllers
                     ImageUrl = r.ImageUrl,
                     Date = r.Date,
                     Orders = null 
-                }).ToList()
+                }).ToList() ?? new List<RestaurantDTO>()
             };
 
             return destinationDTO;
@@ -150,23 +150,44 @@ namespace TravelFoodCms.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateDestination(int id, Destination destinationDTO)
+        public async Task<IActionResult> UpdateDestination(int id, DestinationDTO destinationDTO)
         {
             if (id != destinationDTO.DestinationId)
             {
                 return BadRequest();
             }
 
-            var originalDestination = await _context.Destinations.FindAsync(id);
+            var originalDestination = await _context.Destinations
+                .Include(d => d.Restaurants) 
+                .FirstOrDefaultAsync(d => d.DestinationId == id);
+
+
             if (originalDestination == null)
             {
                 return NotFound();
+            }
+
+            // Only update CreatorUserId if it's a valid user
+            if (destinationDTO.CreatorUserId > 0)
+            {
+                var userExists = await _context.Users.AnyAsync(u => u.UserId == destinationDTO.CreatorUserId);
+                if (!userExists)
+                {
+                    return BadRequest("Invalid User ID");
+                }
+                originalDestination.CreatorUserId = destinationDTO.CreatorUserId;
             }
 
             originalDestination.Name = destinationDTO.Name;
             originalDestination.Location = destinationDTO.Location;
             originalDestination.Description = destinationDTO.Description;
             originalDestination.ImageUrl = destinationDTO.ImageUrl;
+
+            if (originalDestination.Restaurants == null)
+            {
+                originalDestination.Restaurants = new List<Restaurant>();
+            }
+            
             
             _context.Entry(originalDestination).State = EntityState.Modified;
 

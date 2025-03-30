@@ -241,23 +241,44 @@ namespace TravelFoodCms.Controllers
                 return BadRequest("Invalid User ID");
             }
 
-            var originalOrder = await _context.Orders.FindAsync(id);
-            if (originalOrder == null)
+             var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
+
+
+             if (order == null)
             {
                 return NotFound();
             }
 
-            originalOrder.RestaurantId = orderDTO.RestaurantId;
-            originalOrder.UserId = orderDTO.UserId;
-            originalOrder.TotalAmount = orderDTO.TotalAmount;
-            originalOrder.Status = orderDTO.Status;
-            originalOrder.SpecialRequests = orderDTO.SpecialRequests;
+            order.RestaurantId = orderDTO.RestaurantId;
+            order.UserId = orderDTO.UserId;
+            order.TotalAmount = orderDTO.TotalAmount;
+            order.Status = orderDTO.Status;
+            order.SpecialRequests = orderDTO.SpecialRequests;
+            order.OrderDate = orderDTO.OrderDate;
             
-            _context.Entry(originalOrder).State = EntityState.Detached;
+             _context.OrderItems.RemoveRange(order.OrderItems);
+
+            if (orderDTO.OrderItems != null)
+            {
+                foreach (var itemDTO in orderDTO.OrderItems)
+                {
+                    var orderItem = new OrderItem
+                    {
+                        OrderId = order.OrderId,
+                        ItemName = itemDTO.ItemName,
+                        Quantity = itemDTO.Quantity,
+                        UnitPrice = itemDTO.UnitPrice
+                    };
+                    _context.OrderItems.Add(orderItem);
+                }
+            }
 
             try
             {
                 await _context.SaveChangesAsync();
+                return NoContent();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -270,8 +291,6 @@ namespace TravelFoodCms.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
         }
         // DELETE: api/Orders/5
         [HttpDelete("{id}")]
