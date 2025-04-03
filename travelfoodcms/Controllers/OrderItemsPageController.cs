@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using TravelFoodCms.Data;
 using TravelFoodCms.Models;
 using TravelFoodCms.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TravelFoodCms.Controllers
 {
@@ -35,7 +36,6 @@ namespace TravelFoodCms.Controllers
                 ItemName = oi.ItemName,
                 Quantity = oi.Quantity,
                 UnitPrice = oi.UnitPrice,
-                TotalPrice = oi.Quantity * oi.UnitPrice,
                 OrderDate = oi.Order?.OrderDate,
                 RestaurantName = oi.Order?.Restaurant?.Name,
                 UserName = oi.Order?.User?.Username
@@ -71,7 +71,6 @@ namespace TravelFoodCms.Controllers
                 ItemName = orderItem.ItemName,
                 Quantity = orderItem.Quantity,
                 UnitPrice = orderItem.UnitPrice,
-                TotalPrice = orderItem.Quantity * orderItem.UnitPrice,
                 OrderDate = orderItem.Order?.OrderDate,
                 RestaurantName = orderItem.Order?.Restaurant?.Name,
                 UserName = orderItem.Order?.User?.Username
@@ -85,9 +84,10 @@ namespace TravelFoodCms.Controllers
         {
             // Populate order dropdown
             ViewBag.Orders = _context.Orders
-                .Select(o => new { 
-                    o.OrderId, 
-                    DisplayText = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}"
+                .Select(o => new SelectListItem 
+                { 
+                    Value = o.OrderId.ToString(), 
+                    Text = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}" 
                 })
                 .ToList();
 
@@ -99,6 +99,11 @@ namespace TravelFoodCms.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(OrderItemViewModel orderItemViewModel)
         {
+            // Remove validations for display properties
+            ModelState.Remove("RestaurantName");
+            ModelState.Remove("UserName");
+            ModelState.Remove("OrderDate");
+
             if (ModelState.IsValid)
             {
                 // Verify the order exists
@@ -109,9 +114,11 @@ namespace TravelFoodCms.Controllers
                     
                     // Repopulate order dropdown
                     ViewBag.Orders = _context.Orders
-                        .Select(o => new { 
-                            o.OrderId, 
-                            DisplayText = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}"
+                        .Include(o => o.Restaurant)
+                        .Select(o => new SelectListItem 
+                        { 
+                            Value = o.OrderId.ToString(), 
+                            Text = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}" 
                         })
                         .ToList();
 
@@ -137,9 +144,11 @@ namespace TravelFoodCms.Controllers
 
             // Repopulate order dropdown if model is invalid
             ViewBag.Orders = _context.Orders
-                .Select(o => new { 
-                    o.OrderId, 
-                    DisplayText = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}"
+                .Include(o => o.Restaurant)
+                .Select(o => new SelectListItem 
+                { 
+                    Value = o.OrderId.ToString(), 
+                    Text = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}" 
                 })
                 .ToList();
 
@@ -162,11 +171,12 @@ namespace TravelFoodCms.Controllers
 
             // Populate order dropdown
             ViewBag.Orders = _context.Orders
-                .Select(o => new { 
-                    o.OrderId, 
-                    DisplayText = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}"
-                })
-                .ToList();
+                    .Select(o => new SelectListItem 
+                    { 
+                        Value = o.OrderId.ToString(), 
+                        Text = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}" 
+                    })
+                    .ToList();
 
             var orderItemViewModel = new OrderItemViewModel
             {
@@ -218,32 +228,37 @@ namespace TravelFoodCms.Controllers
                     {
                         await UpdateOrderTotal(orderItemViewModel.OrderId);
                     }
+
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!OrderItemExists(orderItemViewModel.ItemId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "An error occurred while saving the order item.");
+                    
+                    // Repopulate orders dropdown
+                    ViewBag.Orders = _context.Orders
+                        .Select(o => new SelectListItem 
+                        { 
+                            Value = o.OrderId.ToString(), 
+                            Text = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}" 
+                        })
+                        .ToList();
+
+                    return View(orderItemViewModel);
                 }
-                return RedirectToAction(nameof(Index));
             }
 
-            // Repopulate order dropdown if model is invalid
+            // Repopulate orders dropdown if model is invalid
             ViewBag.Orders = _context.Orders
-                .Select(o => new { 
-                    o.OrderId, 
-                    DisplayText = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}"
+                .Select(o => new SelectListItem 
+                { 
+                    Value = o.OrderId.ToString(), 
+                    Text = $"Order {o.OrderId} - {o.Restaurant.Name} - {o.OrderDate:d}" 
                 })
                 .ToList();
 
             return View(orderItemViewModel);
         }
-
         // GET: OrderItemsPage/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {

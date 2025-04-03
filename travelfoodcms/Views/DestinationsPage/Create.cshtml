@@ -10,8 +10,8 @@
                     <h2>Create New Destination</h2>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Create" method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="All" class="text-danger"></div>
 
                         <div class="form-group">
                             <label asp-for="Name" class="control-label"></label>
@@ -32,9 +32,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label asp-for="ImageUrl" class="control-label"></label>
-                            <input asp-for="ImageUrl" class="form-control" />
-                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                            <label asp-for="ImageUrl">Upload Image</label>
+                            <input type="file" name="ImageFile" class="form-control-file" />
                         </div>
 
                         <div class="form-group mt-3">

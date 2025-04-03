@@ -25,14 +25,13 @@ namespace TravelFoodCms.Models.ViewModels
         [StringLength(255, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long")]
         [DataType(DataType.Password)]
         [Display(Name = "New Password")]
-        public string NewPassword { get; set; }
+        public string? NewPassword { get; set; }
 
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         [DataType(DataType.Password)]
         [Display(Name = "Confirm Password")]
-        public string ConfirmPassword { get; set; }
+        public string? ConfirmPassword { get; set; }
 
-        // Additional properties for view-specific logic
         [Display(Name = "Total Orders")]
         public int TotalOrderCount { get; set; }
 
@@ -40,8 +39,7 @@ namespace TravelFoodCms.Models.ViewModels
         [DataType(DataType.Currency)]
         public decimal TotalSpending { get; set; }
 
-        // List of user's orders
-        public List<OrderViewModel> Orders { get; set; }
+        public List<OrderViewModel>? Orders { get; set; }
 
         // Validation method
         public bool IsValid()

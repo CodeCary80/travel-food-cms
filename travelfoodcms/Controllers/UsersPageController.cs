@@ -90,6 +90,11 @@ namespace TravelFoodCms.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(RegisterViewModel registerViewModel)
         {
+            // Remove unnecessary validations
+            ModelState.Remove("TotalOrderCount");
+            ModelState.Remove("TotalSpending");
+            ModelState.Remove("Orders");
+
             if (ModelState.IsValid)
             {
                 // Check if username or email already exists
@@ -119,6 +124,7 @@ namespace TravelFoodCms.Controllers
             }
             return View(registerViewModel);
         }
+
 
         // GET: UsersPage/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -150,6 +156,12 @@ namespace TravelFoodCms.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UserViewModel userViewModel)
         {
+            // Remove unnecessary validations
+            ModelState.Remove("TotalOrderCount");
+            ModelState.Remove("TotalSpending");
+            ModelState.Remove("Orders");
+            ModelState.Remove("ConfirmPassword");
+
             if (id != userViewModel.UserId)
             {
                 return NotFound();
@@ -193,20 +205,16 @@ namespace TravelFoodCms.Controllers
 
                     _context.Update(user);
                     await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!UserExists(userViewModel.UserId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "An error occurred while saving the user: " + ex.Message);
+                    return View(userViewModel);
                 }
-                return RedirectToAction(nameof(Index));
             }
+
             return View(userViewModel);
         }
 

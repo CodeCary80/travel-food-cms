@@ -22,6 +22,17 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/Orders
+        /// curl -X "GET" https://localhost:5234/api/Orders
+        /// <summary>
+        /// Returns a list of all Orders
+        /// </summary>
+        /// <returns>
+        /// 200 OK
+        /// [{OrderDTO},{OrderDTO},...]
+        /// </returns>
+        /// <example>
+        /// GET: api/Orders -> [{OrderDTO},{OrderDTO},...]
+        /// </example>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders()
@@ -46,6 +57,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/Orders/5
+        /// curl -X "GET" https://localhost:5234/api/Orders/5
+        /// <summary>
+        /// Returns a single Order specified by its {id}
+        /// </summary>
+        /// <param name="id">The order id</param>
+        /// <returns>
+        /// 200 OK
+        /// {OrderDTO}
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/Orders/5 -> {OrderDTO}
+        /// </example>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -84,7 +109,21 @@ namespace TravelFoodCms.Controllers
             return orderDTO;
         }
 
-        // GET: api/Orders/ByUser/5
+        // GET: api/Orders/ByUser/3
+        /// curl -X "GET" https://localhost:5234/api/Orders/ByUser/3
+        /// <summary>
+        /// Returns all Orders for a specific User
+        /// </summary>
+        /// <param name="userId">The user id</param>
+        /// <returns>
+        /// 200 OK
+        /// [{OrderDTO},{OrderDTO},...]
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/Orders/ByUser/3 -> [{OrderDTO},{OrderDTO},...]
+        /// </example>
         [HttpGet("ByUser/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -116,7 +155,21 @@ namespace TravelFoodCms.Controllers
             return orderDTOs;
         }
 
-        // GET: api/Orders/ByRestaurant/5
+        // GET: api/Orders/ByRestaurant/3
+        /// curl -X "GET" https://localhost:5234/api/Orders/ByRestaurant/3
+        /// <summary>
+        /// Returns all Orders for a specific Restaurant
+        /// </summary>
+        /// <param name="restaurantId">The restaurant id</param>
+        /// <returns>
+        /// 200 OK
+        /// [{OrderDTO},{OrderDTO},...]
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/Orders/ByRestaurant/3 -> [{OrderDTO},{OrderDTO},...]
+        /// </example>
         [HttpGet("ByRestaurant/{restaurantId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -149,6 +202,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/Orders/5/OrderItems
+        /// curl -X "GET" https://localhost:5234/api/Orders/5/OrderItems
+        /// <summary>
+        /// Returns all OrderItems associated with a specific Order
+        /// </summary>
+        /// <param name="id">The order id</param>
+        /// <returns>
+        /// 200 OK
+        /// [{OrderItemDTO},{OrderItemDTO},...]
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/Orders/5/OrderItems -> [{OrderItemDTO},{OrderItemDTO},...]
+        /// </example>
         [HttpGet("{id}/OrderItems")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -178,6 +245,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // POST: api/Orders
+        /// curl -X "POST" https://localhost:5234/api/Orders -H "Content-Type: application/json" -d '{"RestaurantId":3,"UserId":2,"Status":"Pending","SpecialRequests":"Extra napkins please"}'
+        /// <summary>
+        /// Creates a new Order
+        /// </summary>
+        /// <param name="orderDTO">The order details</param>
+        /// <returns>
+        /// 201 Created
+        /// {OrderDTO}
+        /// or
+        /// 400 Bad Request
+        /// </returns>
+        /// <example>
+        /// POST: api/Orders -> {OrderDTO}
+        /// </example>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -218,6 +299,22 @@ namespace TravelFoodCms.Controllers
         }
 
         // PUT: api/Orders/5
+        /// curl -X "PUT" https://localhost:5234/api/Orders/5 -H "Content-Type: application/json" -d '{"OrderId":5,"RestaurantId":3,"UserId":2,"Status":"Completed","TotalAmount":25.99}'
+        /// <summary>
+        /// Updates an existing Order
+        /// </summary>
+        /// <param name="id">The order id</param>
+        /// <param name="orderDTO">The updated order details</param>
+        /// <returns>
+        /// 204 No Content
+        /// or
+        /// 400 Bad Request
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// PUT: api/Orders/5 -> 204 No Content
+        /// </example>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -293,6 +390,19 @@ namespace TravelFoodCms.Controllers
             }
         }
         // DELETE: api/Orders/5
+        /// curl -X "DELETE" https://localhost:5234/api/Orders/5
+        /// <summary>
+        /// Deletes an Order
+        /// </summary>
+        /// <param name="id">The order id</param>
+        /// <returns>
+        /// 204 No Content
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// DELETE: api/Orders/5 -> 204 No Content
+        /// </example>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -24,6 +24,17 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/Users
+        /// curl -X "GET" https://localhost:5234/api/Users
+        /// <summary>
+        /// Returns a list of all Users
+        /// </summary>
+        /// <returns>
+        /// 200 OK
+        /// [{User},{User},...]
+        /// </returns>
+        /// <example>
+        /// GET: api/Users -> [{User},{User},...]
+        /// </example>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
@@ -41,6 +52,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/Users/5
+        /// curl -X "GET" https://localhost:5234/api/Users/5
+        /// <summary>
+        /// Returns a single User specified by its {id}
+        /// </summary>
+        /// <param name="id">The user id</param>
+        /// <returns>
+        /// 200 OK
+        /// {User}
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/Users/5 -> {User}
+        /// </example>
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
@@ -58,6 +83,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/Users/5/Orders
+        /// curl -X "GET" https://localhost:5234/api/Users/5/Orders
+        /// <summary>
+        /// Returns all Orders associated with a specific User
+        /// </summary>
+        /// <param name="id">The user id</param>
+        /// <returns>
+        /// 200 OK
+        /// [{Order},{Order},...]
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/Users/5/Orders -> [{Order},{Order},...]
+        /// </example>
         [HttpGet("{id}/Orders")]
         public async Task<ActionResult<IEnumerable<Order>>> GetUserOrders(int id)
         {
@@ -77,6 +116,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // POST: api/Users
+        /// curl -X "POST" https://localhost:5234/api/Users -H "Content-Type: application/json" -d '{"Username":"johndoe","Email":"john@example.com","PasswordHash":"password123","IsAdmin":false}'
+        /// <summary>
+        /// Creates a new User
+        /// </summary>
+        /// <param name="userDTO">The user details</param>
+        /// <returns>
+        /// 201 Created
+        /// {UserDTO}
+        /// or
+        /// 400 Bad Request
+        /// </returns>
+        /// <example>
+        /// POST: api/Users -> {UserDTO}
+        /// </example>
         [HttpPost]
         public async Task<ActionResult<UserDTO>> CreateUser(UserDTO userDTO)
         {
@@ -112,6 +165,22 @@ namespace TravelFoodCms.Controllers
         }
 
         // PUT: api/Users/5
+        /// curl -X "PUT" https://localhost:5234/api/Users/5 -H "Content-Type: application/json" -d '{"UserId":5,"Username":"johndoe","Email":"john@example.com","IsAdmin":true}'
+        /// <summary>
+        /// Updates an existing User
+        /// </summary>
+        /// <param name="id">The user id</param>
+        /// <param name="userDTO">The updated user details</param>
+        /// <returns>
+        /// 204 No Content
+        /// or
+        /// 400 Bad Request
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// PUT: api/Users/5 -> 204 No Content
+        /// </example>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, UserDTO userDTO)
         {
@@ -169,6 +238,19 @@ namespace TravelFoodCms.Controllers
         }
 
         // DELETE: api/Users/5
+        /// curl -X "DELETE" https://localhost:5234/api/Users/5
+        /// <summary>
+        /// Deletes a User
+        /// </summary>
+        /// <param name="id">The user id</param>
+        /// <returns>
+        /// 204 No Content
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// DELETE: api/Users/5 -> 204 No Content
+        /// </example>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -190,6 +272,7 @@ namespace TravelFoodCms.Controllers
         }
 
         // POST: api/Users/Authenticate
+        //didn't use in MVP stage at the moment. it will be added in the next stage.
         [HttpPost("Authenticate")]
         public async Task<ActionResult<User>> Authenticate(LoginModel login)
         {

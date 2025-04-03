@@ -22,6 +22,17 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/OrderItems
+        /// curl -X "GET" https://localhost:5234/api/OrderItems
+        /// <summary>
+        /// Returns a list of all OrderItems
+        /// </summary>
+        /// <returns>
+        /// 200 OK
+        /// [{OrderItemDTO},{OrderItemDTO},...]
+        /// </returns>
+        /// <example>
+        /// GET: api/OrderItems -> [{OrderItemDTO},{OrderItemDTO},...]
+        /// </example>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<OrderItemDTO>>> GetOrderItems()
@@ -43,6 +54,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/OrderItems/5
+        /// curl -X "GET" https://localhost:5234/api/OrderItems/5
+        /// <summary>
+        /// Returns a single OrderItem specified by its {id}
+        /// </summary>
+        /// <param name="id">The order item id</param>
+        /// <returns>
+        /// 200 OK
+        /// {OrderItemDTO}
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/OrderItems/5 -> {OrderItemDTO}
+        /// </example>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -68,7 +93,21 @@ namespace TravelFoodCms.Controllers
             return orderItemDTO;
         }
 
-        // GET: api/OrderItems/ByOrder/5
+        // GET: api/OrderItems/ByOrder/3
+        /// curl -X "GET" https://localhost:5234/api/OrderItems/ByOrder/3
+        /// <summary>
+        /// Returns all OrderItems for a specific Order
+        /// </summary>
+        /// <param name="orderId">The order id</param>
+        /// <returns>
+        /// 200 OK
+        /// [{OrderItemDTO},{OrderItemDTO},...]
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/OrderItems/ByOrder/3 -> [{OrderItemDTO},{OrderItemDTO},...]
+        /// </example>
         [HttpGet("ByOrder/{orderId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -98,6 +137,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // POST: api/OrderItems
+        /// curl -X "POST" https://localhost:5234/api/OrderItems -H "Content-Type: application/json" -d '{"OrderId":3,"ItemName":"Pizza","Quantity":2,"UnitPrice":12.99}'
+        /// <summary>
+        /// Creates a new OrderItem
+        /// </summary>
+        /// <param name="orderItemDTO">The order item details</param>
+        /// <returns>
+        /// 201 Created
+        /// {OrderItemDTO}
+        /// or
+        /// 400 Bad Request
+        /// </returns>
+        /// <example>
+        /// POST: api/OrderItems -> {OrderItemDTO}
+        /// </example>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -131,6 +184,22 @@ namespace TravelFoodCms.Controllers
         }
 
         // PUT: api/OrderItems/5
+        /// curl -X "PUT" https://localhost:5234/api/OrderItems/5 -H "Content-Type: application/json" -d '{"ItemId":5,"OrderId":3,"ItemName":"Pizza","Quantity":3,"UnitPrice":12.99}'
+        /// <summary>
+        /// Updates an existing OrderItem
+        /// </summary>
+        /// <param name="id">The order item id</param>
+        /// <param name="orderItemDTO">The updated order item details</param>
+        /// <returns>
+        /// 204 No Content
+        /// or
+        /// 400 Bad Request
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// PUT: api/OrderItems/5 -> 204 No Content
+        /// </example>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -183,6 +252,19 @@ namespace TravelFoodCms.Controllers
         }
 
         // DELETE: api/OrderItems/5
+        /// curl -X "DELETE" https://localhost:5234/api/OrderItems/5
+        /// <summary>
+        /// Deletes an OrderItem
+        /// </summary>
+        /// <param name="id">The order item id</param>
+        /// <returns>
+        /// 204 No Content
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// DELETE: api/OrderItems/5 -> 204 No Content
+        /// </example>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -205,6 +287,19 @@ namespace TravelFoodCms.Controllers
         }
 
         // POST: api/OrderItems/AddMultiple
+        /// curl -X "POST" https://localhost:5234/api/OrderItems/AddMultiple -H "Content-Type: application/json" -d '{"OrderId":3,"OrderItems":[{"ItemName":"Pizza","Quantity":2,"UnitPrice":12.99},{"ItemName":"Soda","Quantity":1,"UnitPrice":2.50}]}'
+        /// <summary>
+        /// Creates multiple OrderItems for a single Order
+        /// </summary>
+        /// <param name="request">The MultipleOrderItemsRequestDTO containing order id and item details</param>
+        /// <returns>
+        /// 201 Created
+        /// [{OrderItemDTO},{OrderItemDTO},...]
+        /// or
+        /// 400 Bad Request
+        /// </returns>
+        /// <example>
+        /// POST: api/OrderItems/AddMultiple -> [{OrderItemDTO},{OrderItemDTO},...]
         [HttpPost("AddMultiple")]
         public async Task<ActionResult<IEnumerable<OrderItemDTO>>> AddMultipleOrderItems(
             [FromBody] MultipleOrderItemsRequestDTO request)

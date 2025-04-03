@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using TravelFoodCms.Data;
 using TravelFoodCms.Models;
 using TravelFoodCms.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TravelFoodCms.Controllers
 {
@@ -13,10 +14,14 @@ namespace TravelFoodCms.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public DestinationsPageController(ApplicationDbContext context)
+         private readonly IWebHostEnvironment _hostingEnvironment;
+
+        public DestinationsPageController(ApplicationDbContext context, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
+            _hostingEnvironment = hostingEnvironment;
         }
+
 
         // GET: Destinations
         public async Task<IActionResult> Index()
@@ -81,22 +86,56 @@ namespace TravelFoodCms.Controllers
         // GET: Destinations/Create
         public IActionResult Create()
         {
+            ViewBag.Users = _context.Users
+                .Select(u => new SelectListItem 
+                { 
+                    Value = u.UserId.ToString(), 
+                    Text = u.Username 
+                })
+                .ToList();
+
             return View(new DestinationViewModel());
+            
         }
 
         // POST: Destinations/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(DestinationViewModel destinationViewModel)
+        public async Task<IActionResult> Create(DestinationViewModel destinationViewModel, IFormFile ImageFile)
         {
+            // Remove Restaurants validation
+            ModelState.Remove("Restaurants");
+            // Remove ImageUrl validation
+            ModelState.Remove("ImageUrl");
+
             if (ModelState.IsValid)
             {
+                string uniqueFileName = null;
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                    
+                    // Create directory if it doesn't exist
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+                    
+                    uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                    
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ImageFile.CopyToAsync(fileStream);
+                    }
+                }
+
                 var destination = new Destination
                 {
                     Name = destinationViewModel.Name,
                     Location = destinationViewModel.Location,
                     Description = destinationViewModel.Description,
-                    ImageUrl = destinationViewModel.ImageUrl ?? string.Empty,
+                    ImageUrl = uniqueFileName != null ? "/images/" + uniqueFileName : null,
                     Date = DateTime.Now,
                     CreatorUserId = destinationViewModel.CreatorUserId
                 };
@@ -105,41 +144,64 @@ namespace TravelFoodCms.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(destinationViewModel);
-        }
 
-        // GET: Destinations/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var destination = await _context.Destinations.FindAsync(id);
-            if (destination == null)
-            {
-                return NotFound();
-            }
-
-            var destinationViewModel = new DestinationViewModel
-            {
-                DestinationId = destination.DestinationId,
-                Name = destination.Name,
-                Location = destination.Location,
-                Description = destination.Description,
-                ImageUrl = destination.ImageUrl,
-                CreatorUserId = destination.CreatorUserId
-            };
+            ViewBag.Users = _context.Users
+                .Select(u => new SelectListItem 
+                { 
+                    Value = u.UserId.ToString(), 
+                    Text = u.Username 
+                })
+                .ToList();
 
             return View(destinationViewModel);
         }
+
+
+                // GET: Destinations/Edit/5
+                public async Task<IActionResult> Edit(int? id)
+                {
+                    if (id == null)
+                    {
+                        return NotFound();
+                    }
+
+                    var destination = await _context.Destinations.FindAsync(id);
+                    if (destination == null)
+                    {
+                        return NotFound();
+                    }
+
+                    ViewBag.Users = _context.Users
+                            .Select(u => new SelectListItem 
+                            { 
+                                Value = u.UserId.ToString(), 
+                                Text = u.Username 
+                            })
+                            .ToList();
+
+                    var destinationViewModel = new DestinationViewModel
+                    {
+                        DestinationId = destination.DestinationId,
+                        Name = destination.Name,
+                        Location = destination.Location,
+                        Description = destination.Description,
+                        ImageUrl = destination.ImageUrl,
+                        CreatorUserId = destination.CreatorUserId
+                    };
+
+                    return View(destinationViewModel);
+                }
 
         // POST: Destinations/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, DestinationViewModel destinationViewModel)
+        public async Task<IActionResult> Edit(int id, DestinationViewModel destinationViewModel, IFormFile ImageFile)
         {
+            // Remove Restaurants validation
+            ModelState.Remove("Restaurants");
+            // Remove ImageUrl validation
+            ModelState.Remove("ImageUrl");
+
             if (id != destinationViewModel.DestinationId)
             {
                 return NotFound();
@@ -155,56 +217,95 @@ namespace TravelFoodCms.Controllers
                         return NotFound();
                     }
 
+                    // Handle image upload
+                    if (ImageFile != null && ImageFile.Length > 0)
+                    {
+                        string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                        
+                        // Create directory if it doesn't exist
+                        if (!Directory.Exists(uploadsFolder))
+                        {
+                            Directory.CreateDirectory(uploadsFolder);
+                        }
+                        
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await ImageFile.CopyToAsync(fileStream);
+                        }
+                        
+                        // Update ImageUrl
+                        destination.ImageUrl = "/images/" + uniqueFileName;
+                    }
+
+                    // Update other properties
                     destination.Name = destinationViewModel.Name;
                     destination.Location = destinationViewModel.Location;
                     destination.Description = destinationViewModel.Description;
-                    destination.ImageUrl = destinationViewModel.ImageUrl ?? string.Empty;
+                    destination.CreatorUserId = destinationViewModel.CreatorUserId;
 
                     _context.Update(destination);
                     await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!DestinationExists(destinationViewModel.DestinationId))
+                    // Log the exception
+                    ViewBag.Users = _context.Users
+                        .Select(u => new SelectListItem 
+                        { 
+                            Value = u.UserId.ToString(), 
+                            Text = u.Username,
+                            Selected = u.UserId == destinationViewModel.CreatorUserId
+                        })
+                        .ToList();
+
+                    ModelState.AddModelError("", "An error occurred while saving the destination: " + ex.Message);
+                    return View(destinationViewModel);
+                }
+            }
+
+            ViewBag.Users = _context.Users
+                .Select(u => new SelectListItem 
+                { 
+                    Value = u.UserId.ToString(), 
+                    Text = u.Username,
+                    Selected = u.UserId == destinationViewModel.CreatorUserId
+                })
+                .ToList();
+
+            return View(destinationViewModel);
+        }
+
+                // GET: Destinations/Delete/5
+                public async Task<IActionResult> Delete(int? id)
+                {
+                    if (id == null)
                     {
                         return NotFound();
                     }
-                    else
+
+                    var destination = await _context.Destinations
+                        .FirstOrDefaultAsync(m => m.DestinationId == id);
+                    if (destination == null)
                     {
-                        throw;
+                        return NotFound();
                     }
+
+                    var destinationViewModel = new DestinationViewModel
+                    {
+                        DestinationId = destination.DestinationId,
+                        Name = destination.Name,
+                        Location = destination.Location,
+                        Description = destination.Description,
+                        ImageUrl = destination.ImageUrl
+                    };
+
+                    return View(destinationViewModel);
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(destinationViewModel);
-        }
-
-        // GET: Destinations/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var destination = await _context.Destinations
-                .FirstOrDefaultAsync(m => m.DestinationId == id);
-            if (destination == null)
-            {
-                return NotFound();
-            }
-
-            var destinationViewModel = new DestinationViewModel
-            {
-                DestinationId = destination.DestinationId,
-                Name = destination.Name,
-                Location = destination.Location,
-                Description = destination.Description,
-                ImageUrl = destination.ImageUrl
-            };
-
-            return View(destinationViewModel);
-        }
 
         // POST: Destinations/Delete/5
         [HttpPost, ActionName("Delete")]

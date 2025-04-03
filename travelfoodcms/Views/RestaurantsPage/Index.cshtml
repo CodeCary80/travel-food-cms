@@ -27,12 +27,10 @@
             {
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
-                        <img src="@restaurant.ImageUrl" 
+                        <img src="@(string.IsNullOrEmpty(restaurant.ImageUrl) ? "" : restaurant.ImageUrl)" 
                              alt="@restaurant.Name" 
                              class="card-img-top" 
-                             onerror="this.onerror=null; 
-                                      this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 64 64\' width=\'64\' height=\'64\'><rect width=\'64\' height=\'64\' fill=\'%23f0f0f0\'/><path d=\'M20 20 L44 44 M20 44 L44 20\' stroke=\'%23888\' stroke-width=\'4\'/><text x=\'50%\' y=\'50%\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23888\' font-size=\'12\'>No Image</text></svg>'; 
-                                      this.alt='Image not available';" 
+                             onerror="this.onerror=null; this.src='/images/placeholder.jpg'; this.alt='Image not available';" 
                              style="height: 200px; object-fit: cover;">
 
                         <div class="card-body">
