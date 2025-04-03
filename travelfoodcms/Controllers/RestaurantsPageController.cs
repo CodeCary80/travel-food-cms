@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TravelFoodCms.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using TravelFoodCms.Models;
 using TravelFoodCms.Models.ViewModels;
 
@@ -12,10 +13,12 @@ namespace TravelFoodCms.Controllers
     public class RestaurantsPageController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public RestaurantsPageController(ApplicationDbContext context)
+        public RestaurantsPageController(ApplicationDbContext context, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         // GET: RestaurantsPage
@@ -35,6 +38,7 @@ namespace TravelFoodCms.Controllers
                 CuisineType = r.CuisineType,
                 PriceRange = r.PriceRange,
                 Address = r.Address,
+                ImageUrl = r.ImageUrl, // Add this line
                 TotalOrders = r.Orders?.Count ?? 0
             }).ToList();
 
@@ -90,8 +94,12 @@ namespace TravelFoodCms.Controllers
         {
             // Populate destination dropdown
             ViewBag.Destinations = _context.Destinations
-                .Select(d => new { d.DestinationId, d.Name })
-                .ToList();
+                    .Select(d => new SelectListItem 
+                    { 
+                        Value = d.DestinationId.ToString(), 
+                        Text = d.Name 
+                    })
+                    .ToList();
 
             return View(new RestaurantViewModel());
         }
@@ -99,35 +107,82 @@ namespace TravelFoodCms.Controllers
         // POST: RestaurantsPage/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(RestaurantViewModel restaurantViewModel)
+        public async Task<IActionResult> Create(RestaurantViewModel restaurantViewModel, IFormFile? ImageFile)
         {
+            ModelState.Remove("ImageUrl");
+            ModelState.Remove("DestinationName");
+            ModelState.Remove("TotalOrders");
+            ModelState.Remove("Orders");
+
             if (ModelState.IsValid)
             {
-                var restaurant = new Restaurant
+                try
                 {
-                    Name = restaurantViewModel.Name,
-                    DestinationId = restaurantViewModel.DestinationId,
-                    CuisineType = restaurantViewModel.CuisineType,
-                    PriceRange = restaurantViewModel.PriceRange,
-                    ContactInfo = restaurantViewModel.ContactInfo,
-                    OperatingHours = restaurantViewModel.OperatingHours,
-                    Address = restaurantViewModel.Address,
-                    ImageUrl = restaurantViewModel.ImageUrl ?? string.Empty,
-                    Date = DateTime.Now
-                };
+                    string? uniqueFileName = null;
+                    if (ImageFile != null && ImageFile.Length > 0)
+                    {
+                        string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                        
+                        // Create directory if it doesn't exist
+                        if (!Directory.Exists(uploadsFolder))
+                        {
+                            Directory.CreateDirectory(uploadsFolder);
+                        }
+                        
+                        uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await ImageFile.CopyToAsync(fileStream);
+                        }
+                    }
 
-                _context.Add(restaurant);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                    var restaurant = new Restaurant
+                    {
+                        Name = restaurantViewModel.Name,
+                        DestinationId = restaurantViewModel.DestinationId,
+                        CuisineType = restaurantViewModel.CuisineType,
+                        PriceRange = restaurantViewModel.PriceRange,
+                        ContactInfo = restaurantViewModel.ContactInfo ?? string.Empty,
+                        OperatingHours = restaurantViewModel.OperatingHours ?? string.Empty,
+                        Address = restaurantViewModel.Address,
+                        ImageUrl = uniqueFileName != null ? "/images/" + uniqueFileName : null,
+                        Date = DateTime.Now
+                    };
+
+                    _context.Add(restaurant);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Error creating restaurant: " + ex.Message);
+                }
             }
 
-            // Repopulate destination dropdown if model is invalid
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            foreach (var error in errors)
+            {
+                Console.WriteLine("Validation Error: " + error);
+            }
+
+            // Repopulate destination dropdown
             ViewBag.Destinations = _context.Destinations
-                .Select(d => new { d.DestinationId, d.Name })
+                .Select(d => new SelectListItem 
+                { 
+                    Value = d.DestinationId.ToString(), 
+                    Text = d.Name 
+                })
                 .ToList();
 
             return View(restaurantViewModel);
         }
+
 
         // GET: RestaurantsPage/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -145,7 +200,11 @@ namespace TravelFoodCms.Controllers
 
             // Populate destination dropdown
             ViewBag.Destinations = _context.Destinations
-                .Select(d => new { d.DestinationId, d.Name })
+            .Select(d => new SelectListItem 
+                { 
+                    Value = d.DestinationId.ToString(), 
+                    Text = d.Name 
+                })
                 .ToList();
 
             var restaurantViewModel = new RestaurantViewModel
@@ -167,8 +226,13 @@ namespace TravelFoodCms.Controllers
         // POST: RestaurantsPage/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, RestaurantViewModel restaurantViewModel)
+        public async Task<IActionResult> Edit(int id, RestaurantViewModel restaurantViewModel, IFormFile? ImageFile)
         {
+            ModelState.Remove("ImageUrl");
+            ModelState.Remove("DestinationName");
+            ModelState.Remove("TotalOrders");
+            ModelState.Remove("Orders");
+
             if (id != restaurantViewModel.RestaurantId)
             {
                 return NotFound();
@@ -184,39 +248,68 @@ namespace TravelFoodCms.Controllers
                         return NotFound();
                     }
 
+                    if (ImageFile != null && ImageFile.Length > 0)
+                    {
+                        string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                        
+                        if (!Directory.Exists(uploadsFolder))
+                        {
+                            Directory.CreateDirectory(uploadsFolder);
+                        }
+                        
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await ImageFile.CopyToAsync(fileStream);
+                        }
+                        
+                        restaurant.ImageUrl = uniqueFileName != null ? "/images/" + uniqueFileName : null;
+                    }
+
                     restaurant.Name = restaurantViewModel.Name;
                     restaurant.DestinationId = restaurantViewModel.DestinationId;
                     restaurant.CuisineType = restaurantViewModel.CuisineType;
                     restaurant.PriceRange = restaurantViewModel.PriceRange;
-                    restaurant.ContactInfo = restaurantViewModel.ContactInfo;
-                    restaurant.OperatingHours = restaurantViewModel.OperatingHours;
+                    restaurant.ContactInfo = restaurantViewModel.ContactInfo ?? string.Empty;
+                    restaurant.OperatingHours = restaurantViewModel.OperatingHours ?? string.Empty;
                     restaurant.Address = restaurantViewModel.Address;
-                    restaurant.ImageUrl = restaurantViewModel.ImageUrl ?? string.Empty;
 
                     _context.Update(restaurant);
                     await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!RestaurantExists(restaurantViewModel.RestaurantId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "Error updating restaurant: " + ex.Message);
                 }
-                return RedirectToAction(nameof(Index));
             }
 
-            // Repopulate destination dropdown if model is invalid
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            foreach (var error in errors)
+            {
+                Console.WriteLine("Validation Error: " + error);
+            }
+
+            // Repopulate destinations dropdown
             ViewBag.Destinations = _context.Destinations
-                .Select(d => new { d.DestinationId, d.Name })
+                .Select(d => new SelectListItem 
+                { 
+                    Value = d.DestinationId.ToString(), 
+                    Text = d.Name,
+                    Selected = d.DestinationId == restaurantViewModel.DestinationId
+                })
                 .ToList();
 
             return View(restaurantViewModel);
         }
+
 
         // GET: RestaurantsPage/Delete/5
         public async Task<IActionResult> Delete(int? id)

@@ -41,17 +41,17 @@ namespace TravelFoodCms.Models.ViewModels
         [StringLength(255, ErrorMessage = "Address cannot be longer than 255 characters")]
         public string Address { get; set; }
 
-        [Display(Name = "Restaurant Image")]
-        [StringLength(255, ErrorMessage = "Image URL cannot be longer than 255 characters")]
-        [Url(ErrorMessage = "Please enter a valid URL")]
-        public string ImageUrl { get; set; }
+        [Display(Name = "Image")]
+        public string? ImageUrl { get; set; }
+        
+        [Display(Name = "Upload Image")]
+        public IFormFile? ImageFile { get; set; }
 
         [Display(Name = "Created Date")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime Date { get; set; }
 
-        // Additional properties for view-specific logic
         [Display(Name = "Destination Name")]
         public string DestinationName { get; set; }
 

@@ -22,6 +22,17 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/Restaurants
+        /// curl -X "GET" https://localhost:5234/api/Restaurants
+        /// <summary>
+        /// Returns a list of all Restaurants
+        /// </summary>
+        /// <returns>
+        /// 200 OK
+        /// [{RestaurantDTO},{RestaurantDTO},...]
+        /// </returns>
+        /// <example>
+        /// GET: api/Restaurants -> [{RestaurantDTO},{RestaurantDTO},...]
+        /// </example>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<RestaurantDTO>>> GetRestaurants()
@@ -49,6 +60,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/Restaurants/5
+        /// curl -X "GET" https://localhost:5234/api/Restaurants/5
+        /// <summary>
+        /// Returns a single Restaurant specified by its {id}
+        /// </summary>
+        /// <param name="id">The restaurant id</param>
+        /// <returns>
+        /// 200 OK
+        /// {RestaurantDTO}
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/Restaurants/5 -> {RestaurantDTO}
+        /// </example>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -92,6 +117,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // GET: api/Restaurants/5/Orders
+        /// curl -X "GET" https://localhost:5234/api/Restaurants/5/Orders
+        /// <summary>
+        /// Returns all Orders associated with a specific Restaurant
+        /// </summary>
+        /// <param name="id">The restaurant id</param>
+        /// <returns>
+        /// 200 OK
+        /// [{OrderDTO},{OrderDTO},...]
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/Restaurants/5/Orders -> [{OrderDTO},{OrderDTO},...]
+        /// </example>
         [HttpGet("{id}/Orders")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -124,6 +163,20 @@ namespace TravelFoodCms.Controllers
         }
 
         // POST: api/Restaurants
+        /// curl -X "POST" https://localhost:5234/api/Restaurants -H "Content-Type: application/json" -d '{"DestinationId":3,"Name":"Sushi Palace","CuisineType":"Japanese","PriceRange":"$$$"}'
+        /// <summary>
+        /// Creates a new Restaurant
+        /// </summary>
+        /// <param name="restaurantDTO">The restaurant details</param>
+        /// <returns>
+        /// 201 Created
+        /// {RestaurantDTO}
+        /// or
+        /// 400 Bad Request
+        /// </returns>
+        /// <example>
+        /// POST: api/Restaurants -> {RestaurantDTO}
+        /// </example>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -163,6 +216,22 @@ namespace TravelFoodCms.Controllers
         }
 
         // PUT: api/Restaurants/5
+        /// curl -X "PUT" https://localhost:5234/api/Restaurants/5 -H "Content-Type: application/json" -d '{"RestaurantId":5,"DestinationId":3,"Name":"Sushi Palace","CuisineType":"Japanese","PriceRange":"$$$$"}'
+        /// <summary>
+        /// Updates an existing Restaurant
+        /// </summary>
+        /// <param name="id">The restaurant id</param>
+        /// <param name="restaurantDTO">The updated restaurant details</param>
+        /// <returns>
+        /// 204 No Content
+        /// or
+        /// 400 Bad Request
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// PUT: api/Restaurants/5 -> 204 No Content
+        /// </example>
         [HttpPut("{id}")]
          [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -220,6 +289,19 @@ namespace TravelFoodCms.Controllers
         }
 
         // DELETE: api/Restaurants/5
+        /// curl -X "DELETE" https://localhost:5234/api/Restaurants/5
+        /// <summary>
+        /// Deletes a Restaurant
+        /// </summary>
+        /// <param name="id">The restaurant id</param>
+        /// <returns>
+        /// 204 No Content
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// DELETE: api/Restaurants/5 -> 204 No Content
+        /// </example>
         [HttpDelete("{id}")]
          [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -240,7 +322,21 @@ namespace TravelFoodCms.Controllers
             return NoContent();
         }
 
-        // GET: api/Restaurants/ByDestination/5
+        // GET: api/Restaurants/ByDestination/3
+        /// curl -X "GET" https://localhost:5234/api/Restaurants/ByDestination/3
+        /// <summary>
+        /// Returns all Restaurants for a specific Destination
+        /// </summary>
+        /// <param name="destinationId">The destination id</param>
+        /// <returns>
+        /// 200 OK
+        /// [{RestaurantDTO},{RestaurantDTO},...]
+        /// or
+        /// 404 Not Found
+        /// </returns>
+        /// <example>
+        /// GET: api/Restaurants/ByDestination/3 -> [{RestaurantDTO},{RestaurantDTO},...]
+        /// </example>
         [HttpGet("ByDestination/{destinationId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

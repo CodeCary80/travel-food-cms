@@ -28,17 +28,20 @@ namespace TravelFoodCms.Models.ViewModels
 
         [Display(Name = "Total Price")]
         [DataType(DataType.Currency)]
-        public decimal TotalPrice { get; set; }
+        public decimal TotalPrice => Quantity * UnitPrice;
+
+        [Display(Name = "Total Price")]
+        public string FormattedTotalPrice => (Quantity * UnitPrice).ToString("C");
 
         [Display(Name = "Order Date")]
         [DataType(DataType.DateTime)]
         public DateTime? OrderDate { get; set; }
 
         [Display(Name = "Restaurant")]
-        public string RestaurantName { get; set; }
+        public string? RestaurantName { get; set; }
 
         [Display(Name = "User")]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
 
         // Validation method
         public bool IsValid()

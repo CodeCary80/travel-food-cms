@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TravelFoodCms.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using TravelFoodCms.Models;
 using TravelFoodCms.Models.ViewModels;
 
@@ -79,7 +80,6 @@ namespace TravelFoodCms.Controllers
                     ItemName = oi.ItemName,
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice,
-                    TotalPrice = oi.Quantity * oi.UnitPrice
                 }).ToList()
             };
 
@@ -91,12 +91,20 @@ namespace TravelFoodCms.Controllers
         {
             // Populate dropdowns for restaurants and users
             ViewBag.Restaurants = _context.Restaurants
-                .Select(r => new { r.RestaurantId, r.Name })
-                .ToList();
+                    .Select(r => new SelectListItem 
+                    { 
+                        Value = r.RestaurantId.ToString(), 
+                        Text = r.Name 
+                    })
+                    .ToList();
 
             ViewBag.Users = _context.Users
-                .Select(u => new { u.UserId, u.Username })
-                .ToList();
+                    .Select(u => new SelectListItem 
+                    { 
+                        Value = u.UserId.ToString(), 
+                        Text = u.Username 
+                    })
+                    .ToList();
 
             return View(new OrderViewModel());
         }
@@ -106,49 +114,79 @@ namespace TravelFoodCms.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(OrderViewModel orderViewModel)
         {
+            ModelState.Remove("RestaurantName");
+            ModelState.Remove("UserName");
+            ModelState.Remove("TotalItemCount");
+            ModelState.Remove("OrderItems");
+
             if (ModelState.IsValid)
             {
-                var order = new Order
+                try
                 {
-                    RestaurantId = orderViewModel.RestaurantId,
-                    UserId = orderViewModel.UserId,
-                    OrderDate = DateTime.Now,
-                    TotalAmount = orderViewModel.TotalAmount,
-                    Status = orderViewModel.Status ?? "Pending",
-                    SpecialRequests = orderViewModel.SpecialRequests
-                };
-
-                _context.Add(order);
-                await _context.SaveChangesAsync();
-
-                // Optionally add order items if provided
-                if (orderViewModel.OrderItems != null)
-                {
-                    foreach (var itemViewModel in orderViewModel.OrderItems)
+                    var order = new Order
                     {
-                        var orderItem = new OrderItem
-                        {
-                            OrderId = order.OrderId,
-                            ItemName = itemViewModel.ItemName,
-                            Quantity = itemViewModel.Quantity,
-                            UnitPrice = itemViewModel.UnitPrice
-                        };
-                        _context.OrderItems.Add(orderItem);
-                    }
-                    await _context.SaveChangesAsync();
-                }
+                        RestaurantId = orderViewModel.RestaurantId,
+                        UserId = orderViewModel.UserId,
+                        OrderDate = DateTime.Now,
+                        TotalAmount = orderViewModel.TotalAmount,
+                        Status = orderViewModel.Status ?? "Pending",
+                        SpecialRequests = orderViewModel.SpecialRequests ?? string.Empty
+                    };
 
-                return RedirectToAction(nameof(Index));
+                    _context.Add(order);
+                    await _context.SaveChangesAsync();
+
+                    // Add order items if provided
+                    if (orderViewModel.OrderItems != null && orderViewModel.OrderItems.Any())
+                    {
+                        foreach (var itemViewModel in orderViewModel.OrderItems)
+                        {
+                            // Skip empty or invalid items
+                            if (string.IsNullOrWhiteSpace(itemViewModel.ItemName) || itemViewModel.Quantity <= 0)
+                            {
+                                continue;
+                            }
+
+                            var orderItem = new OrderItem
+                            {
+                                OrderId = order.OrderId,
+                                ItemName = itemViewModel.ItemName,
+                                Quantity = itemViewModel.Quantity,
+                                UnitPrice = itemViewModel.UnitPrice
+                            };
+                            _context.OrderItems.Add(orderItem);
+                        }
+                        await _context.SaveChangesAsync();
+                        
+                        // Update the order total after all items are added
+                        await UpdateOrderTotalAsync(order.OrderId);
+                    }
+
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"Error creating order: {ex.Message}");
+                }
             }
 
-            // Repopulate dropdowns if model is invalid
+            // If we reach here, something went wrong
+            // Repopulate dropdowns
             ViewBag.Restaurants = _context.Restaurants
-                .Select(r => new { r.RestaurantId, r.Name })
-                .ToList();
+                    .Select(r => new SelectListItem 
+                    { 
+                        Value = r.RestaurantId.ToString(), 
+                        Text = r.Name 
+                    })
+                    .ToList();
 
             ViewBag.Users = _context.Users
-                .Select(u => new { u.UserId, u.Username })
-                .ToList();
+                    .Select(u => new SelectListItem 
+                    { 
+                        Value = u.UserId.ToString(), 
+                        Text = u.Username 
+                    })
+                    .ToList();
 
             return View(orderViewModel);
         }
@@ -172,11 +210,19 @@ namespace TravelFoodCms.Controllers
 
             // Populate dropdowns
             ViewBag.Restaurants = _context.Restaurants
-                .Select(r => new { r.RestaurantId, r.Name })
-                .ToList();
+                    .Select(r => new SelectListItem 
+                    { 
+                        Value = r.RestaurantId.ToString(), 
+                        Text = r.Name 
+                    })
+                    .ToList();
 
             ViewBag.Users = _context.Users
-                .Select(u => new { u.UserId, u.Username })
+                .Select(u => new SelectListItem 
+                { 
+                    Value = u.UserId.ToString(), 
+                    Text = u.Username 
+                })
                 .ToList();
 
             var orderViewModel = new OrderViewModel
@@ -205,6 +251,11 @@ namespace TravelFoodCms.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, OrderViewModel orderViewModel)
         {
+            ModelState.Remove("RestaurantName");
+            ModelState.Remove("UserName");
+            ModelState.Remove("TotalItemCount");
+            ModelState.Remove("OrderItems");
+
             if (id != orderViewModel.OrderId)
             {
                 return NotFound();
@@ -223,59 +274,79 @@ namespace TravelFoodCms.Controllers
                         return NotFound();
                     }
 
-                    // Update order details
                     order.RestaurantId = orderViewModel.RestaurantId;
                     order.UserId = orderViewModel.UserId;
                     order.TotalAmount = orderViewModel.TotalAmount;
                     order.Status = orderViewModel.Status;
-                    order.SpecialRequests = orderViewModel.SpecialRequests;
+                    order.SpecialRequests = orderViewModel.SpecialRequests ?? string.Empty;
 
-                    // Handle OrderItems
-                    // Remove existing order items
                     _context.OrderItems.RemoveRange(order.OrderItems);
 
-                    // Add new order items
                     if (orderViewModel.OrderItems != null)
                     {
                         foreach (var itemViewModel in orderViewModel.OrderItems)
                         {
-                            var orderItem = new OrderItem
+                            if (!string.IsNullOrEmpty(itemViewModel.ItemName) && itemViewModel.Quantity > 0)
                             {
-                                OrderId = order.OrderId,
-                                ItemName = itemViewModel.ItemName,
-                                Quantity = itemViewModel.Quantity,
-                                UnitPrice = itemViewModel.UnitPrice
-                            };
-                            _context.OrderItems.Add(orderItem);
+                                var orderItem = new OrderItem
+                                {
+                                    OrderId = order.OrderId,
+                                    ItemName = itemViewModel.ItemName,
+                                    Quantity = itemViewModel.Quantity,
+                                    UnitPrice = itemViewModel.UnitPrice
+                                };
+                                _context.OrderItems.Add(orderItem);
+                            }
                         }
                     }
 
+                    _context.Update(order);
                     await _context.SaveChangesAsync();
+
+                    // Update the order total after all items have been added
+                    await UpdateOrderTotalAsync(order.OrderId);
+
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!OrderExists(orderViewModel.OrderId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "An error occurred while saving the order: " + ex.Message);
                 }
-                return RedirectToAction(nameof(Index));
             }
 
             // Repopulate dropdowns if model is invalid
             ViewBag.Restaurants = _context.Restaurants
-                .Select(r => new { r.RestaurantId, r.Name })
+                .Select(r => new SelectListItem 
+                { 
+                    Value = r.RestaurantId.ToString(), 
+                    Text = r.Name 
+                })
                 .ToList();
 
             ViewBag.Users = _context.Users
-                .Select(u => new { u.UserId, u.Username })
+                .Select(u => new SelectListItem 
+                { 
+                    Value = u.UserId.ToString(), 
+                    Text = u.Username 
+                })
                 .ToList();
 
             return View(orderViewModel);
+        }
+
+        // Helper method to update order total
+        private async Task UpdateOrderTotalAsync(int orderId)
+        {
+            var orderItems = await _context.OrderItems
+                .Where(oi => oi.OrderId == orderId)
+                .ToListAsync();
+
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order != null)
+            {
+                order.TotalAmount = orderItems.Sum(oi => oi.Quantity * oi.UnitPrice);
+                await _context.SaveChangesAsync();
+            }
         }
 
         // GET: OrdersPage/Delete/5
