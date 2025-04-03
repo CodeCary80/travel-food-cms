@@ -145,17 +145,7 @@ The application contains the following main controllers:
 - `GET /api/Users/{id}/Orders`
 - `POST /api/Users/Authenticate`
 
----
 
-## Technical Features
-- **ASP.NET Core MVC** and **Web API** dual architecture
-- **Entity Framework Core** for database operations
-- **MySQL database** with relationships and indexes
-- **Bootstrap 4** for responsive UI design
-- **Image upload and display functionality**
-- **Dynamic form handling** with JavaScript
-- **Data validation** (client & server-side)
-- **Swagger API documentation**
 
 
 
