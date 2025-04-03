@@ -157,39 +157,6 @@ The application contains the following main controllers:
 - **Data validation** (client & server-side)
 - **Swagger API documentation**
 
----
 
-## Getting Started
-1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/yourusername/travel-food-cms.git
-   cd travel-food-cms
-   ```
-2. **Configure the database connection string** in `appsettings.json`.
-3. **Run database migrations:**
-   ```sh
-   dotnet ef database update
-   ```
-4. **Build and run the application:**
-   ```sh
-   dotnet run
-   ```
-5. **Access the web interface:**
-   - [https://localhost:5234](https://localhost:5234)
-   
-6. **API documentation available at:**
-   - [https://localhost:5234/swagger](https://localhost:5234/swagger)
 
----
 
-## Dependencies
-- **.NET 8.0**
-- **Microsoft.EntityFrameworkCore (8.0.13)**
-- **Pomelo.EntityFrameworkCore.MySql (8.0.3)**
-- **Microsoft.AspNetCore.Authentication.JwtBearer (8.0.0)**
-- **Swashbuckle.AspNetCore (8.0.0)**
-
----
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
