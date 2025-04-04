@@ -3,6 +3,10 @@
 ## Project Overview
 The **Travel Food CMS** is a comprehensive web application that manages travel destinations, restaurants, orders, and users to provide a seamless food ordering experience for travelers. Built with **ASP.NET Core**, the system demonstrates entity relationships using both a **Web API** for backend functionality and **MVC** for the user interface.
 
+## Team Contributions
+Sonia worked on implementing all the MVC and API controllers. 
+Tianrui Zhu focused on the data models, view models, DTOs, database context, views, and overall system architecture.
+
 ---
 
 ## Controllers and Views

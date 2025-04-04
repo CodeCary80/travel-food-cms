@@ -4,6 +4,525 @@
         <name>travelfoodcms</name>
     </assembly>
     <members>
+        <member name="M:TravelFoodCms.Controllers.DestinationsController.GetDestinations">
+            curl -X "GET" https://localhost:5234/api/Destinations
+            <summary>
+            Returns a list of all Destinations
+            </summary>
+            <returns>
+            200 OK
+            [{DestinationDTO},{DestinationDTO},...]
+            </returns>
+            <example>
+            GET: api/Destinations -> [{DestinationDTO},{DestinationDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.DestinationsController.GetDestination(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Destinations/5
+            <summary>
+            Returns a single Destination specified by its {id}
+            </summary>
+            <param name="id">The destination id</param>
+            <returns>
+            200 OK
+            {DestinationDTO}
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Destinations/5 -> {DestinationDTO}
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.DestinationsController.GetDestinationRestaurants(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Destinations/5/Restaurants
+            <summary>
+            Returns all Restaurants associated with a specific Destination
+            </summary>
+            <param name="id">The destination id</param>
+            <returns>
+            200 OK
+            [{RestaurantDTO},{RestaurantDTO},...]
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Destinations/5/Restaurants -> [{RestaurantDTO},{RestaurantDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.DestinationsController.CreateDestination(TravelFoodCms.Models.DTOs.DestinationDTO)">
+            curl -X "POST" https://localhost:5234/api/Destinations -H "Content-Type: application/json" -d '{"Name":"Paris","Location":"France","Description":"City of Lights"}'
+            <summary>
+            Creates a new Destination
+            </summary>
+            <param name="destinationDTO">The destination details</param>
+            <returns>
+            201 Created
+            {DestinationDTO}
+            or
+            400 Bad Request
+            </returns>
+            <example>
+            POST: api/Destinations -> {DestinationDTO}
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.DestinationsController.UpdateDestination(System.Int32,TravelFoodCms.Models.DTOs.DestinationDTO)">
+            curl -X "PUT" https://localhost:5234/api/Destinations/5 -H "Content-Type: application/json" -d '{"DestinationId":5,"Name":"Paris","Location":"France","Description":"Updated description"}'
+            <summary>
+            Updates an existing Destination
+            </summary>
+            <param name="id">The destination id</param>
+            <param name="destinationDTO">The updated destination details</param>
+            <returns>
+            204 No Content
+            or
+            400 Bad Request
+            or
+            404 Not Found
+            </returns>
+            <example>
+            PUT: api/Destinations/5 -> 204 No Content
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.DestinationsController.DeleteDestination(System.Int32)">
+            curl -X "DELETE" https://localhost:5234/api/Destinations/5
+            <summary>
+            Deletes a Destination
+            </summary>
+            <param name="id">The destination id</param>
+            <returns>
+            204 No Content
+            or
+            404 Not Found
+            </returns>
+            <example>
+            DELETE: api/Destinations/5 -> 204 No Content
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrderItemsController.GetOrderItems">
+            curl -X "GET" https://localhost:5234/api/OrderItems
+            <summary>
+            Returns a list of all OrderItems
+            </summary>
+            <returns>
+            200 OK
+            [{OrderItemDTO},{OrderItemDTO},...]
+            </returns>
+            <example>
+            GET: api/OrderItems -> [{OrderItemDTO},{OrderItemDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrderItemsController.GetOrderItem(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/OrderItems/5
+            <summary>
+            Returns a single OrderItem specified by its {id}
+            </summary>
+            <param name="id">The order item id</param>
+            <returns>
+            200 OK
+            {OrderItemDTO}
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/OrderItems/5 -> {OrderItemDTO}
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrderItemsController.GetOrderItemsByOrder(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/OrderItems/ByOrder/3
+            <summary>
+            Returns all OrderItems for a specific Order
+            </summary>
+            <param name="orderId">The order id</param>
+            <returns>
+            200 OK
+            [{OrderItemDTO},{OrderItemDTO},...]
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/OrderItems/ByOrder/3 -> [{OrderItemDTO},{OrderItemDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrderItemsController.CreateOrderItem(TravelFoodCms.Models.DTOs.OrderItemDTO)">
+            curl -X "POST" https://localhost:5234/api/OrderItems -H "Content-Type: application/json" -d '{"OrderId":3,"ItemName":"Pizza","Quantity":2,"UnitPrice":12.99}'
+            <summary>
+            Creates a new OrderItem
+            </summary>
+            <param name="orderItemDTO">The order item details</param>
+            <returns>
+            201 Created
+            {OrderItemDTO}
+            or
+            400 Bad Request
+            </returns>
+            <example>
+            POST: api/OrderItems -> {OrderItemDTO}
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrderItemsController.UpdateOrderItem(System.Int32,TravelFoodCms.Models.DTOs.OrderItemDTO)">
+            curl -X "PUT" https://localhost:5234/api/OrderItems/5 -H "Content-Type: application/json" -d '{"ItemId":5,"OrderId":3,"ItemName":"Pizza","Quantity":3,"UnitPrice":12.99}'
+            <summary>
+            Updates an existing OrderItem
+            </summary>
+            <param name="id">The order item id</param>
+            <param name="orderItemDTO">The updated order item details</param>
+            <returns>
+            204 No Content
+            or
+            400 Bad Request
+            or
+            404 Not Found
+            </returns>
+            <example>
+            PUT: api/OrderItems/5 -> 204 No Content
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrderItemsController.DeleteOrderItem(System.Int32)">
+            curl -X "DELETE" https://localhost:5234/api/OrderItems/5
+            <summary>
+            Deletes an OrderItem
+            </summary>
+            <param name="id">The order item id</param>
+            <returns>
+            204 No Content
+            or
+            404 Not Found
+            </returns>
+            <example>
+            DELETE: api/OrderItems/5 -> 204 No Content
+            </example>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:TravelFoodCms.Controllers.OrderItemsController.AddMultipleOrderItems(TravelFoodCms.Controllers.MultipleOrderItemsRequestDTO)" -->
+        <member name="M:TravelFoodCms.Controllers.OrdersController.GetOrders">
+            curl -X "GET" https://localhost:5234/api/Orders
+            <summary>
+            Returns a list of all Orders
+            </summary>
+            <returns>
+            200 OK
+            [{OrderDTO},{OrderDTO},...]
+            </returns>
+            <example>
+            GET: api/Orders -> [{OrderDTO},{OrderDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrdersController.GetOrder(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Orders/5
+            <summary>
+            Returns a single Order specified by its {id}
+            </summary>
+            <param name="id">The order id</param>
+            <returns>
+            200 OK
+            {OrderDTO}
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Orders/5 -> {OrderDTO}
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrdersController.GetOrdersByUser(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Orders/ByUser/3
+            <summary>
+            Returns all Orders for a specific User
+            </summary>
+            <param name="userId">The user id</param>
+            <returns>
+            200 OK
+            [{OrderDTO},{OrderDTO},...]
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Orders/ByUser/3 -> [{OrderDTO},{OrderDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrdersController.GetOrdersByRestaurant(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Orders/ByRestaurant/3
+            <summary>
+            Returns all Orders for a specific Restaurant
+            </summary>
+            <param name="restaurantId">The restaurant id</param>
+            <returns>
+            200 OK
+            [{OrderDTO},{OrderDTO},...]
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Orders/ByRestaurant/3 -> [{OrderDTO},{OrderDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrdersController.GetOrderItems(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Orders/5/OrderItems
+            <summary>
+            Returns all OrderItems associated with a specific Order
+            </summary>
+            <param name="id">The order id</param>
+            <returns>
+            200 OK
+            [{OrderItemDTO},{OrderItemDTO},...]
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Orders/5/OrderItems -> [{OrderItemDTO},{OrderItemDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrdersController.CreateOrder(TravelFoodCms.Models.DTOs.OrderDTO)">
+            curl -X "POST" https://localhost:5234/api/Orders -H "Content-Type: application/json" -d '{"RestaurantId":3,"UserId":2,"Status":"Pending","SpecialRequests":"Extra napkins please"}'
+            <summary>
+            Creates a new Order
+            </summary>
+            <param name="orderDTO">The order details</param>
+            <returns>
+            201 Created
+            {OrderDTO}
+            or
+            400 Bad Request
+            </returns>
+            <example>
+            POST: api/Orders -> {OrderDTO}
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrdersController.UpdateOrder(System.Int32,TravelFoodCms.Models.DTOs.OrderDTO)">
+            curl -X "PUT" https://localhost:5234/api/Orders/5 -H "Content-Type: application/json" -d '{"OrderId":5,"RestaurantId":3,"UserId":2,"Status":"Completed","TotalAmount":25.99}'
+            <summary>
+            Updates an existing Order
+            </summary>
+            <param name="id">The order id</param>
+            <param name="orderDTO">The updated order details</param>
+            <returns>
+            204 No Content
+            or
+            400 Bad Request
+            or
+            404 Not Found
+            </returns>
+            <example>
+            PUT: api/Orders/5 -> 204 No Content
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.OrdersController.DeleteOrder(System.Int32)">
+            curl -X "DELETE" https://localhost:5234/api/Orders/5
+            <summary>
+            Deletes an Order
+            </summary>
+            <param name="id">The order id</param>
+            <returns>
+            204 No Content
+            or
+            404 Not Found
+            </returns>
+            <example>
+            DELETE: api/Orders/5 -> 204 No Content
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.RestaurantsController.GetRestaurants">
+            curl -X "GET" https://localhost:5234/api/Restaurants
+            <summary>
+            Returns a list of all Restaurants
+            </summary>
+            <returns>
+            200 OK
+            [{RestaurantDTO},{RestaurantDTO},...]
+            </returns>
+            <example>
+            GET: api/Restaurants -> [{RestaurantDTO},{RestaurantDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.RestaurantsController.GetRestaurant(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Restaurants/5
+            <summary>
+            Returns a single Restaurant specified by its {id}
+            </summary>
+            <param name="id">The restaurant id</param>
+            <returns>
+            200 OK
+            {RestaurantDTO}
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Restaurants/5 -> {RestaurantDTO}
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.RestaurantsController.GetRestaurantOrders(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Restaurants/5/Orders
+            <summary>
+            Returns all Orders associated with a specific Restaurant
+            </summary>
+            <param name="id">The restaurant id</param>
+            <returns>
+            200 OK
+            [{OrderDTO},{OrderDTO},...]
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Restaurants/5/Orders -> [{OrderDTO},{OrderDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.RestaurantsController.CreateRestaurant(TravelFoodCms.Models.DTOs.RestaurantDTO)">
+            curl -X "POST" https://localhost:5234/api/Restaurants -H "Content-Type: application/json" -d '{"DestinationId":3,"Name":"Sushi Palace","CuisineType":"Japanese","PriceRange":"$$$"}'
+            <summary>
+            Creates a new Restaurant
+            </summary>
+            <param name="restaurantDTO">The restaurant details</param>
+            <returns>
+            201 Created
+            {RestaurantDTO}
+            or
+            400 Bad Request
+            </returns>
+            <example>
+            POST: api/Restaurants -> {RestaurantDTO}
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.RestaurantsController.UpdateRestaurant(System.Int32,TravelFoodCms.Models.DTOs.RestaurantDTO)">
+            curl -X "PUT" https://localhost:5234/api/Restaurants/5 -H "Content-Type: application/json" -d '{"RestaurantId":5,"DestinationId":3,"Name":"Sushi Palace","CuisineType":"Japanese","PriceRange":"$$$$"}'
+            <summary>
+            Updates an existing Restaurant
+            </summary>
+            <param name="id">The restaurant id</param>
+            <param name="restaurantDTO">The updated restaurant details</param>
+            <returns>
+            204 No Content
+            or
+            400 Bad Request
+            or
+            404 Not Found
+            </returns>
+            <example>
+            PUT: api/Restaurants/5 -> 204 No Content
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.RestaurantsController.DeleteRestaurant(System.Int32)">
+            curl -X "DELETE" https://localhost:5234/api/Restaurants/5
+            <summary>
+            Deletes a Restaurant
+            </summary>
+            <param name="id">The restaurant id</param>
+            <returns>
+            204 No Content
+            or
+            404 Not Found
+            </returns>
+            <example>
+            DELETE: api/Restaurants/5 -> 204 No Content
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.RestaurantsController.GetRestaurantsByDestination(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Restaurants/ByDestination/3
+            <summary>
+            Returns all Restaurants for a specific Destination
+            </summary>
+            <param name="destinationId">The destination id</param>
+            <returns>
+            200 OK
+            [{RestaurantDTO},{RestaurantDTO},...]
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Restaurants/ByDestination/3 -> [{RestaurantDTO},{RestaurantDTO},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.UsersController.GetUsers">
+            curl -X "GET" https://localhost:5234/api/Users
+            <summary>
+            Returns a list of all Users
+            </summary>
+            <returns>
+            200 OK
+            [{User},{User},...]
+            </returns>
+            <example>
+            GET: api/Users -> [{User},{User},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.UsersController.GetUser(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Users/5
+            <summary>
+            Returns a single User specified by its {id}
+            </summary>
+            <param name="id">The user id</param>
+            <returns>
+            200 OK
+            {User}
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Users/5 -> {User}
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.UsersController.GetUserOrders(System.Int32)">
+            curl -X "GET" https://localhost:5234/api/Users/5/Orders
+            <summary>
+            Returns all Orders associated with a specific User
+            </summary>
+            <param name="id">The user id</param>
+            <returns>
+            200 OK
+            [{Order},{Order},...]
+            or
+            404 Not Found
+            </returns>
+            <example>
+            GET: api/Users/5/Orders -> [{Order},{Order},...]
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.UsersController.CreateUser(TravelFoodCms.Models.DTOs.UserDTO)">
+            curl -X "POST" https://localhost:5234/api/Users -H "Content-Type: application/json" -d '{"Username":"johndoe","Email":"john@example.com","PasswordHash":"password123","IsAdmin":false}'
+            <summary>
+            Creates a new User
+            </summary>
+            <param name="userDTO">The user details</param>
+            <returns>
+            201 Created
+            {UserDTO}
+            or
+            400 Bad Request
+            </returns>
+            <example>
+            POST: api/Users -> {UserDTO}
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.UsersController.UpdateUser(System.Int32,TravelFoodCms.Models.DTOs.UserDTO)">
+            curl -X "PUT" https://localhost:5234/api/Users/5 -H "Content-Type: application/json" -d '{"UserId":5,"Username":"johndoe","Email":"john@example.com","IsAdmin":true}'
+            <summary>
+            Updates an existing User
+            </summary>
+            <param name="id">The user id</param>
+            <param name="userDTO">The updated user details</param>
+            <returns>
+            204 No Content
+            or
+            400 Bad Request
+            or
+            404 Not Found
+            </returns>
+            <example>
+            PUT: api/Users/5 -> 204 No Content
+            </example>
+        </member>
+        <member name="M:TravelFoodCms.Controllers.UsersController.DeleteUser(System.Int32)">
+            curl -X "DELETE" https://localhost:5234/api/Users/5
+            <summary>
+            Deletes a User
+            </summary>
+            <param name="id">The user id</param>
+            <returns>
+            204 No Content
+            or
+            404 Not Found
+            </returns>
+            <example>
+            DELETE: api/Users/5 -> 204 No Content
+            </example>
+        </member>
         <member name="T:travelfoodcms.Migrations.InitialCreate">
             <inheritdoc />
         </member>
