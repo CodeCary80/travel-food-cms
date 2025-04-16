@@ -18,6 +18,10 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = /Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms
 build_property._RazorSourceGeneratorDebug = 
 
+[/Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms/Views/Account/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9BY2Nlc3NEZW5pZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/tianzhu/Desktop/5226/travel-food-cms/travelfoodcms/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

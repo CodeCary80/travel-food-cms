@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using TravelFoodCms.Data;
 using TravelFoodCms.Models;
 using TravelFoodCms.Models.ViewModels;
@@ -10,9 +11,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TravelFoodCms.Controllers
 {
+    [Authorize(Roles = "Admin,User")]
     public class DestinationsPageController : Controller
     {
         private readonly ApplicationDbContext _context;
+         private const int PageSize = 6; 
 
          private readonly IWebHostEnvironment _hostingEnvironment;
 
@@ -24,25 +27,66 @@ namespace TravelFoodCms.Controllers
 
 
         // GET: Destinations
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+        string searchString, 
+        string currentFilter, 
+        int? pageNumber)
+    {
+        // Manage search and pagination state
+        if (searchString != null)
         {
-            var destinations = await _context.Destinations
-                .Include(d => d.Restaurants)
-                .ToListAsync();
-
-            var destinationViewModels = destinations.Select(d => new DestinationViewModel
-                {
-                    DestinationId = d.DestinationId,
-                    Name = d.Name,
-                    Location = d.Location,
-                    Description = d.Description,
-                    ImageUrl = d.ImageUrl,
-                    Date = d.Date,
-                    RestaurantCount = d.Restaurants?.Count ?? 0
-                }).ToList();
-
-            return View(destinationViewModels);
+            pageNumber = 1;
         }
+        else
+        {
+            searchString = currentFilter;
+        }
+
+        ViewData["CurrentFilter"] = searchString;
+
+        // Start with a queryable source of destinations
+        var destinations = _context.Destinations
+            .Include(d => d.Restaurants)
+            .AsQueryable();
+
+        // Apply search filter if provided
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            destinations = destinations.Where(d => 
+                d.Name.Contains(searchString) || 
+                d.Location.Contains(searchString));
+        }
+
+        // Order destinations
+        destinations = destinations.OrderBy(d => d.Name);
+
+        // Create paginated list
+        var destinationViewModels = await PaginatedList<Destination>.CreateAsync(
+            destinations, 
+            pageNumber ?? 1, 
+            PageSize);
+
+        // Convert to view models
+        var paginatedDestinationViewModels = destinationViewModels.Select(d => new DestinationViewModel
+        {
+            DestinationId = d.DestinationId,
+            Name = d.Name,
+            Location = d.Location,
+            Description = d.Description,
+            ImageUrl = d.ImageUrl,
+            Date = d.Date,
+            RestaurantCount = d.Restaurants?.Count ?? 0
+        }).ToList();
+
+    // Create a new PaginatedList with view models
+    var result = new PaginatedList<DestinationViewModel>(
+        paginatedDestinationViewModels, 
+        await destinations.CountAsync(), 
+        pageNumber ?? 1, 
+        PageSize);
+
+    return View(result);
+}
 
         // GET: Destinations/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -101,6 +145,7 @@ namespace TravelFoodCms.Controllers
         // POST: Destinations/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(DestinationViewModel destinationViewModel, IFormFile ImageFile)
         {
             // Remove Restaurants validation
@@ -195,6 +240,7 @@ namespace TravelFoodCms.Controllers
         // POST: Destinations/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, DestinationViewModel destinationViewModel, IFormFile ImageFile)
         {
             // Remove Restaurants validation
@@ -310,6 +356,7 @@ namespace TravelFoodCms.Controllers
         // POST: Destinations/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var destination = await _context.Destinations

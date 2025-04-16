@@ -1,59 +1,114 @@
-@using TravelFoodCms.Models.ViewModels;
+@using TravelFoodCms.Models
+@using TravelFoodCms.Models.ViewModels
+@model PaginatedList<DestinationViewModel>
 
-@model IEnumerable<DestinationViewModel>
 <div class="container">
     <div class="row mb-3">
         <div class="col-md-8">
             <h1 class="display-4">Destinations</h1>
         </div>
-        <div class="col-md-4 text-right">
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="fas fa-plus mr-2"></i>Create New Destination
-            </a>
-        </div>
-    </div>
-
-    @if (!Model.Any())
-{
-    <div class="alert alert-info" role="alert">
-        No destinations found. Start by creating a new destination!
-    </div>
-}
-else
-{
-    <div class="row">
-        @foreach (var destination in Model)
+        @if (User.IsInRole("Admin"))
         {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="@destination.ImageUrl" 
-                        alt="@destination.Name" 
-                        class="card-img-top" 
-                        onerror="this.onerror=null; this.src='/images/placeholder-image.png'; this.alt='Image not available';" 
-                        style="height: 200px; object-fit: cover;">
-                    <div class="card-body">
-                        <h5 class="card-title">@destination.Name</h5>
-                        <p class="card-text">
-                            <strong>Location:</strong> @destination.Location<br>
-                            <strong>Restaurants:</strong> @destination.RestaurantCount
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="btn-group">
-                                <a asp-action="Details" asp-route-id="@destination.DestinationId" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-eye mr-1"></i>View
-                                </a>
-                                <a asp-action="Edit" asp-route-id="@destination.DestinationId" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit mr-1"></i>Edit
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@destination.DestinationId" class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-trash mr-1"></i>Delete
-                                </a>
-                            </div>
-                            <small class="text-muted">Added @destination.Date.ToString("dd MMM yyyy")</small>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-md-4 text-right">
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>Create New Destination
+                </a>
             </div>
         }
     </div>
-}
+
+    <!-- Search Form -->
+    <form asp-action="Index" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="searchString" 
+                   class="form-control" 
+                   placeholder="Search destinations..." 
+                   value="@ViewData["CurrentFilter"]" />
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-reset"></i> Clear
+                </a>
+            </div>
+        </div>
+    </form>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            No destinations found. Try a different search or create a new destination!
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var destination in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@destination.ImageUrl" 
+                             alt="@destination.Name" 
+                             class="card-img-top" 
+                             onerror="this.onerror=null; this.src='/images/placeholder-image.png'; this.alt='Image not available';" 
+                             style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@destination.Name</h5>
+                            <p class="card-text">
+                                <strong>Location:</strong> @destination.Location<br>
+                                <strong>Restaurants:</strong> @destination.RestaurantCount
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a asp-action="Details" asp-route-id="@destination.DestinationId" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-eye mr-1"></i>View
+                                    </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@destination.DestinationId" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit mr-1"></i>Edit
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@destination.DestinationId" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash mr-1"></i>Delete
+                                        </a>
+                                    }
+                                </div>
+                                <small class="text-muted">Added @destination.Date.ToString("dd MMM yyyy")</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Destination pages" class="mt-4">
+            <ul class="pagination justify-content-center">
+                @{
+                    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                }
+                <li class="page-item @prevDisabled">
+                    <a asp-action="Index" 
+                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                       asp-route-searchString="@ViewData["CurrentFilter"]"
+                       class="page-link">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">Page @Model.PageIndex of @Model.TotalPages</span>
+                </li>
+                <li class="page-item @nextDisabled">
+                    <a asp-action="Index" 
+                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                       asp-route-searchString="@ViewData["CurrentFilter"]"
+                       class="page-link">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

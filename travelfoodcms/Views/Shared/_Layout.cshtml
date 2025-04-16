@@ -32,17 +32,65 @@
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-controller="OrdersPage" asp-action="Index">Orders</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="UsersPage" asp-action="Index">Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="OrderItemsPage" asp-action="Index">Order Items</a>
-                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                            {
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white" asp-controller="UsersPage" asp-action="Index">Users</a>
+                                    </li>
+                                }
+                            }
+                            <li class="nav-item"></li>
+                                        <a class="nav-link text-white" asp-controller="OrderItemsPage" asp-action="Index">Order Items</a>
+                            </li>
+                    </ul>
+                        <ul class="navbar-nav ml-auto">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown show">
+                                <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button" 
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <i class="fas fa-user mr-1"></i> @User.Identity.Name
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right show" aria-labelledby="userDropdown" 
+                                    style="display: block; position: absolute;">
+                                    <a class="dropdown-item" href="#" 
+                                    onclick="document.getElementById('logout-form').submit();">
+                                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                                    </a>
+                                    <script>
+                                        console.log('User:', '@User.Identity.Name');
+                                        console.log('Is Admin:', @(User.IsInRole("Admin").ToString().ToLower()));
+                                    </script>
+                                </div>
+                            </li>
+                            <form id="logout-form" asp-controller="Account" asp-action="Logout" method="post" style="display: none;"></form>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-controller="Account" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt mr-1"></i> Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-controller="Account" asp-action="Register">
+                                    <i class="fas fa-user-plus mr-1"></i> Register
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('Authentication Status:', @(User.Identity.IsAuthenticated.ToString().ToLower()));
+            });
+        </script>
     </header>
+
     
     <div class="container">
         <main role="main" class="pb-3">

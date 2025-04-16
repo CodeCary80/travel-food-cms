@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using TravelFoodCms.Data;
 using TravelFoodCms.Models;
 using TravelFoodCms.Models.ViewModels;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TravelFoodCms.Controllers
 {
+    [Authorize]
     public class OrderItemsPageController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -97,6 +99,7 @@ namespace TravelFoodCms.Controllers
         // POST: OrderItemsPage/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(OrderItemViewModel orderItemViewModel)
         {
             // Remove validations for display properties
@@ -193,6 +196,7 @@ namespace TravelFoodCms.Controllers
         // POST: OrderItemsPage/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, OrderItemViewModel orderItemViewModel)
         {
             if (id != orderItemViewModel.ItemId)
@@ -293,6 +297,7 @@ namespace TravelFoodCms.Controllers
         // POST: OrderItemsPage/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var orderItem = await _context.OrderItems.FindAsync(id);

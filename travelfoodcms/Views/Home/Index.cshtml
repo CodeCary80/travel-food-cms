@@ -1,10 +1,39 @@
 ﻿
-
 @{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container">
+    <h1 class="display-4">Welcome, @User.Identity.Name!</h1>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="alert alert-success">
+            <strong>Admin Access:</strong> You have full access to the system.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <strong>Limited Access:</strong> You can view information but cannot modify records.
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Destinations</h2>
+            <p>View travel destinations across different locations.</p>
+            <a asp-controller="DestinationsPage" asp-action="Index" class="btn btn-primary">View Destinations</a>
+        </div>
+        <div class="col-md-4">
+            <h2>Restaurants</h2>
+            <p>Explore restaurants in various destinations.</p>
+            <a asp-controller="RestaurantsPage" asp-action="Index" class="btn btn-primary">View Restaurants</a>
+        </div>
+        <div class="col-md-4">
+            <h2>Orders</h2>
+            <p>Check your order history.</p>
+            <a asp-controller="OrdersPage" asp-action="Index" class="btn btn-primary">View Orders</a>
+        </div>
+    </div>
 </div>

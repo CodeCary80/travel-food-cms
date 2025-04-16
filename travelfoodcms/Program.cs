@@ -3,6 +3,7 @@ using TravelFoodCms.Data;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,28 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         ServerVersion.AutoDetect(connectionString)
     )
 );
+
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.Events.OnSigningIn = context =>
+    {
+        Console.WriteLine($"Signing in user: {context.Principal.Identity.Name}");
+        return Task.CompletedTask;
+    };
+    options.Events.OnSignedIn = context =>
+    {
+        Console.WriteLine($"User signed in: {context.Principal.Identity.Name}");
+        return Task.CompletedTask;
+    };
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -44,6 +67,8 @@ builder.Services.AddSwaggerGen(options =>
             Url = new Uri("https://opensource.org/licenses/MIT")
         }
     });
+
+    
 
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -100,6 +125,7 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseAuthentication();
 
 app.UseRouting();
 

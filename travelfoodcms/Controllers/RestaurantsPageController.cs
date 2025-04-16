@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using TravelFoodCms.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TravelFoodCms.Models;
@@ -10,6 +11,7 @@ using TravelFoodCms.Models.ViewModels;
 
 namespace TravelFoodCms.Controllers
 {
+    [Authorize]
     public class RestaurantsPageController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -107,6 +109,7 @@ namespace TravelFoodCms.Controllers
         // POST: RestaurantsPage/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(RestaurantViewModel restaurantViewModel, IFormFile? ImageFile)
         {
             ModelState.Remove("ImageUrl");
@@ -226,6 +229,7 @@ namespace TravelFoodCms.Controllers
         // POST: RestaurantsPage/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, RestaurantViewModel restaurantViewModel, IFormFile? ImageFile)
         {
             ModelState.Remove("ImageUrl");
@@ -343,6 +347,7 @@ namespace TravelFoodCms.Controllers
         // POST: RestaurantsPage/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var restaurant = await _context.Restaurants

@@ -4,10 +4,10 @@
 The **Travel Food CMS** is a comprehensive web application that manages travel destinations, restaurants, orders, and users to provide a seamless food ordering experience for travelers. Built with **ASP.NET Core**, the system demonstrates entity relationships using both a **Web API** for backend functionality and **MVC** for the user interface.
 
 ## Team Contributions
-Sonia worked on implementing all the MVC, view models and API controllers. 
-Tianrui Zhu focused on the data models, view models, DTOs, database context, views, and overall system architecture.
 
----
+Sonia worked on implementing all the MVC and API controllers along with authentication. 
+
+Tianrui Zhu focused on the data models, view models, DTOs, database context, views, extra features, and overall system architecture.
 
 ## Controllers and Views
 The application contains the following main controllers:
@@ -150,7 +150,38 @@ The application contains the following main controllers:
 - `POST /api/Users/Authenticate`
 
 
+## Extra Features
 
+### Authentication
+
+The Travel & Food CMS implements a role-based authentication system with two primary user roles:
+- **Admin**: Full system access (create, edit, delete)
+- **User**: Read-only access to system information
+
+Key Authentication Features:
+- User registration and login
+- Restricted access to admin-only functions
+
+### Image Upload
+
+Image upload functionality is integrated across multiple models:
+- Supports uploading images 
+- Stores images in the `wwwroot/images` directory
+
+Key Upload Features:
+- Automatic filename generation
+- File extension preservation
+
+### Pagination and Search
+
+List views implement advanced browsing capabilities:
+- Pagination for all major list views (Destinations)
+- Configurable page size
+- Search functionality across multiple fields
+
+Features:
+- Page number tracking
+- Previous/Next page navigation
 
 
 

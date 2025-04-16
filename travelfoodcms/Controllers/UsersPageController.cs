@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using TravelFoodCms.Data;
 using TravelFoodCms.Models;
 using TravelFoodCms.Models.ViewModels;
@@ -11,8 +12,10 @@ using System.Text;
 
 namespace TravelFoodCms.Controllers
 {
+    [Authorize]
     public class UsersPageController : Controller
     {
+        
         private readonly ApplicationDbContext _context;
 
         public UsersPageController(ApplicationDbContext context)
@@ -88,6 +91,7 @@ namespace TravelFoodCms.Controllers
         // POST: UsersPage/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(RegisterViewModel registerViewModel)
         {
             // Remove unnecessary validations
@@ -154,6 +158,7 @@ namespace TravelFoodCms.Controllers
         // POST: UsersPage/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, UserViewModel userViewModel)
         {
             // Remove unnecessary validations
@@ -247,6 +252,7 @@ namespace TravelFoodCms.Controllers
         // POST: UsersPage/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var user = await _context.Users
