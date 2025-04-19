@@ -5,7 +5,7 @@ The **Travel Food CMS** is a comprehensive web application that manages travel d
 
 ## Team Contributions
 
-Sonia worked on implementing all the MVC and API controllers along with authentication. 
+Sonia worked on implementing all the MVC, views and API controllers along with authentication. 
 
 Tianrui Zhu focused on the data models, view models, DTOs, database context, views, extra features, and overall system architecture.
 
