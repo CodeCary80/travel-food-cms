@@ -4,6 +4,39 @@
         <name>travelfoodcms</name>
     </assembly>
     <members>
+        <member name="M:AccountController.Login">
+            <summary>
+            Displays the login page
+            </summary>
+            <returns>Login view</returns>
+        </member>
+        <member name="M:AccountController.Login(TravelFoodCms.Models.ViewModels.LoginViewModel)">
+            <summary>
+            Processes user login attempt
+            </summary>
+            <param name="model">Login credentials</param>
+            <returns>Redirects to home page on success, returns to login page on failure</returns>
+        </member>
+        <member name="M:AccountController.Logout">
+            <summary>
+            Logs out the current user
+            </summary>
+            <returns>Redirects to home page</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:AccountController.AccessDenied" -->
+        <member name="M:AccountController.Register">
+            <summary>
+            Displays the user registration page
+            </summary>
+            <returns>Register view</returns>
+        </member>
+        <member name="M:AccountController.Register(TravelFoodCms.Models.ViewModels.RegisterViewModel)">
+            <summary>
+            Processes new user registration
+            </summary>
+            <param name="model">User registration details</param>
+            <returns>Redirects to home page after successful registration</returns>
+        </member>
         <member name="M:TravelFoodCms.Controllers.DestinationsController.GetDestinations">
             curl -X "GET" https://localhost:5234/api/Destinations
             <summary>
